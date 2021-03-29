@@ -1,1 +1,1 @@
-select * from dbo.premio_paquete
+select * from dbo.premio_paquete;
