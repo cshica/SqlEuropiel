@@ -1,1 +1,1 @@
-select top 10 * from dbo.premio_paquete;
+select top 5 * from dbo.premio_paquete;
