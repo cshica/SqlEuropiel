@@ -1,4 +1,4 @@
-DECLARE @MSG_ANDROID NVARCHAR(MAX)='"data":{"messageId":"1", "posterUrl":"https://europiel-system-files.s3.amazonaws.com/AppEuropielAndroid/POP_UP_ActualizaApp.jpg", "url":"https://europiel.com.mx","linkUrl":"https://europiel-system-files.s3.amazonaws.com/AppEuropielAndroid/POP_UP_ActualizaApp.jpg", "Category":"POPUP_INAPP"}}'
+DECLARE @MSG_ANDROID NVARCHAR(MAX)='"data":{"messageId":"1","title": "Actualiza tu APP", "posterUrl":"https://europiel-system-files.s3.amazonaws.com/AppEuropielAndroid/POP_UP_ActualizaApp.jpg", "url":"https://europiel.com.mx","linkUrl":"https://play.google.com/store/apps/details?id=com.virtekinnovations.europiel", "Category":"POPUP_INAPP"}}'
 DECLARE @VERSION NVARCHAR(10)
 DROP TABLE IF EXISTS #TABLA_MSG
 create table #TABLA_MSG(
@@ -33,8 +33,21 @@ and s.callcenter_activo=1
 --	or exists (select 1 from notifier_mensajes n (nolock) where id_notifier=5 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque
 --				and (n.ultimo_estatus like '%Exception message%' or n.ultimo_estatus like '%Error en el servidor remoto%'))
 --	)
---AND d.id_device='c8_AdwuUc88:APA91bEmIkmrrA09VuoRzssV_h0hYKntsJiMHvjFBbCScjJW39KRhy2k200Voh9OcIFVdMNNWxpE70Cw9dzLrKS7H3BlLKtDlf5Roc0-nok8AyGxgilBCsQJ1btqsFHo7hS0_EW0RMKc'
+--AND d.id_device='c8_AdwuUc88:APA91bEmIkmrrA09VuoRzssV_h0hYKntsJiMHvjFBbCScjJW39KRhy2k200Voh9OcIFVdMNNWxpE70Cw9dzLrKS7H3BlLKtDlf5Roc0-nok8AyGxgilBCsQJ1btqsFHo7hS0_EW0RMKc'--cshica
+AND d.id_device='eC9R2NfOtAQ:APA91bEzzWh0Lb1S8WqXw4S3KWJYJCLcyLuTzpRC0SLoU--8DvnIM4Bu5LgSCXXAYKjAcY78XXP9K1nXZxyRHk3T27HMG-y7WGxHyBZlLsxD0Rgr3lNKsmaMO2x3uxn1XCeHA-cblQFI'--leoncio
 --select * from #TABLA_MSG
+--==============================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+select top 10 * from rm_europiel.dbo.mobile_device_info 
+select top 5     c.id_usuario,   d.id_device, d.os,*
+from v_clientes_con_callcenter_activo c
+join rm_europiel.dbo.mobile_device_info d (nolock) on d.id_paciente=c.id_usuario and d.os='Android'
+join rm_europiel.dbo.paciente p (nolock) on p.id_paciente=c.id_usuario
+join rm_europiel.dbo.sucursal s (nolock) on s.id_sucursal=p.id_sucursal
+join rm_europiel.dbo.bloque b (nolock) on b.id_bloque=s.id_bloque
+where c.bloque='MTY1'
+and s.callcenter_activo=1
+AND d.id_device='eC9R2NfOtAQ:APA91bEzzWh0Lb1S8WqXw4S3KWJYJCLcyLuTzpRC0SLoU--8DvnIM4Bu5LgSCXXAYKjAcY78XXP9K1nXZxyRHk3T27HMG-y7WGxHyBZlLsxD0Rgr3lNKsmaMO2x3uxn1XCeHA-cblQFI'--leoncio
+select top 5 * from rm_europiel.dbo.usuario where telefono_personal like '%2281832312%'
 
 --==============================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
 /*
@@ -139,7 +152,7 @@ select id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload
 from #TABLA_MSG
 order by fecha_alta_paciente desc
 
-
+--select * from #TABLA_MSG
 
 --==========================*************FIN************=========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
 			
@@ -148,12 +161,12 @@ order by fecha_alta_paciente desc
 
 
 select * from notifier_mensajes where 
-id_usuario=58041  
-and cast(fecha_envio as date)=cast(getdate() as date)
+id_usuario=58043  
+--and cast(fecha_envio as date)=cast(getdate() as date)
 and mobile_os='Android'
-
+order by id_detalle desc
 SELECT TOP 1 * FROM rm_europiel.dbo.mobile_user_login r where  r.device_type ='android' and r.id_usuario=58041 and r.device_model like '%plus%' 
-and cast((select value from string_split('3.9','.')) as integer)<8
+--and cast((select value from string_split('3.9','.')) as integer)<8
 order by id desc
 
 --SELECT * FROM #TABLA_MSG
