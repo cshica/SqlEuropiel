@@ -1,5 +1,3 @@
-use rm_europiel_requerimientos_test
-go
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -570,7 +568,7 @@ payload =
 	set @hora_bra=dateadd(HOUR,3,@hora_mex)
 	
 	--select @hora_mex MEX,@hora_esp ESP,@hora_col COL,@hora_cri CRI
-
+    DROP TABLE IF EXISTS #TABLA_HORAS 
 	CREATE TABLE #TABLA_HORAS
 	(
 		bloque varchar(5)
@@ -617,16 +615,17 @@ payload =
 	-- HGU
 	and nm.fecha_envio is null
 	--CSHICA:   AGREGADO PARA QUE LOS MENSAJES SE ENVIEN ENTRE LAS 9 DE LA MAÑANA Y 9 DE LA NOCHE
-	AND (CAST(TH.HORA AS TIME) BETWEEN '09:00:00' AND '23:00:00')
+	AND (CAST(TH.HORA AS TIME) BETWEEN '09:00:00' AND '21:00:00')
 
 	order by nm.id_detalle
 --	and len(isNull(nm.telefono,''))>5
 
 	drop table #tblNotifierWhatsApp
-	DROP table #TABLA_HORAS
+
  end
 
 GO
+
 update notifier_mensajes 
 set
  telefono='+528261065393' 
