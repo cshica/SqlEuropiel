@@ -131,7 +131,7 @@ ESP1,ESP2
 --====================
 */
 UNION ALL
-select distinct 5, c.id_usuario, s.id_bloque, b.abreviatura, d.id_device, d.os,
+select distinct 5, c.id_usuario, s.id_bloque, b.abreviatura, d.id_device, d.os,p.fecha_alta,
 		payload=CONCAT('{"registration_ids":["' + d.id_device + '"],',@MSG_ANDROID)
 from v_clientes_con_callcenter_activo c
 join rm_europiel_espana.dbo.mobile_device_info d (nolock) on d.id_paciente=c.id_usuario and d.os='Android'
