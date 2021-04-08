@@ -196,6 +196,9 @@ select c.id_paciente id_usuario,
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
+
+	alter table #mobile_notificacion alter column  tipo_notificacion  nvarchar(max)
+	alter table #mobile_notificacion alter column  mensaje  nvarchar(max)
 	/**********************************************************************************/
 	--select c.id_paciente id_usuario, 
 	--		'Cliente' tipo_usuario,
