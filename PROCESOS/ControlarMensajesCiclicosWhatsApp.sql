@@ -57,4 +57,4 @@ BEGIN
 
 END
 truncate table notifier_control_mensajes_repetidos
-select * from notifier_control_mensajes_repetidos
+select * from notifier_control_mensajes_repetidos order by id desc
