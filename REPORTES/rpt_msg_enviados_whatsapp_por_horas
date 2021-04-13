@@ -1,0 +1,49 @@
+SELECT * into #mensajes_marzo FROM notifier_mensajes
+WHERE fecha_envio between '2021-03-01' and '2021-03-31'
+order by id_detalle desc
+
+SELECT * into #mensajes_abril FROM notifier_mensajes
+WHERE fecha_envio between '2021-04-01' and '2021-04-11'
+order by id_detalle desc
+/**************************************************************************/
+declare @hora_ini time='00:00:00'
+declare @hora_fin time='07:59:59'
+declare @hora_ini1 time='21:00:00'
+declare @hora_fin1 time='23:59:59'
+/**************************************************************************/
+select BLOQUE, COUNT(*) Nº,'21:00:00-07:59:59' RANGO1 
+from #mensajes_marzo
+WHERE
+(
+	(
+		cast(fecha_envio as time) between @hora_ini and  @hora_fin
+	)
+	OR
+	(
+		cast(fecha_envio as time) between @hora_ini1 and  @hora_fin1
+	)
+)
+and mobile_os='whatsapp'
+and payload not like '%favor de no compartirlo con NADIE.%'
+
+GROUP BY bloque
+ORDER BY bloque
+
+
+select BLOQUE, COUNT(*) Nº,'21:00:00-07:59:59' RANGO 
+from #mensajes_abril
+WHERE
+(
+	(
+		cast(fecha_envio as time) between @hora_ini and  @hora_fin
+	)
+	OR
+	(
+		cast(fecha_envio as time) between @hora_ini1 and  @hora_fin1
+	)
+)
+and mobile_os='whatsapp'
+and payload not like '%favor de no compartirlo con NADIE.%'
+
+GROUP BY bloque
+ORDER BY bloque
