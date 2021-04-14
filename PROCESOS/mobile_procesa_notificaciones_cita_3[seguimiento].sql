@@ -442,7 +442,7 @@ MODIFICADO POR CSHICA:
 	    - Mensaje con el link de confirmacion de cita
 	2	Se creó una nueva plantilla en twilio con esta nueva estructura (Name Template: confirmar_cita)
 **************************************************************************************************************/
-	insert into #TABLA_PACIENTES (id_paciente, mensaje,)
+	insert into #TABLA_PACIENTES (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 					'a las ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
