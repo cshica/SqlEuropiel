@@ -1,42 +1,29 @@
 USE [rm_europiel_espana]
---select * from TEMPORAL_TABLE_ENVIOS where ID_PACIENTE=59966
-/**********************************************************************
+GO
+/****** Object:  StoredProcedure [dbo].[mobile_procesa_notificaciones_cita]    Script Date: 15/04/2021 12:12:44 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ 
+
+ALTER procedure [dbo].[mobile_procesa_notificaciones_cita]
+	@tipo_ejecucion int=0
+as
+BEGIN
+
+--if getdate()<'20200531'
+--	print 'COVID'
+--	return
+
 declare @fecha datetime = CAST(GETDATE() AS DATE), @fecha_2dias datetime = CAST(DATEADD(DD,2,GETDATE()) as DATE), @fecha_1dia datetime = CAST(DATEADD(DD,1,GETDATE()) as DATE),
 		@bloque varchar(32)='', @id_ejecucion int=0
-declare TABLA_PACIENTES TypePacienteWhatsapp		
+		
 select top 1 @bloque=bloque from parametro
 
 select @id_ejecucion=max(id_ejecucion) from mobile_notificacion
 select @id_ejecucion=ISNULL(@id_ejecucion,0) + 1
-alter table #mobile_notificacion alter column  tipo_notificacion  nvarchar(max)
-alter table #mobile_notificacion alter column  mensaje  nvarchar(max)
-select * from #mobile_notificacion
-*****************************************************************************/
 
-DECLARE @tipo_ejecucion INT=1
-DROP TABLE IF EXISTS #TABLA_PACIENTES
-CREATE TABLE #TABLA_PACIENTES
-(
-	id INT identity(1,1)
-	,id_paciente INT
-	,mensaje varchar(max)
-	,fecha_hora_msj DATETIME
-	-- ,fecha_msj DATE
-	-- ,hora_msj time
-    -- ,orden int
-)
-
-/*****************************************************************************/
-
-declare @fecha datetime = CAST(GETDATE() AS DATE), @fecha_2dias datetime = CAST(DATEADD(DD,2,GETDATE()) as DATE), @fecha_1dia datetime = CAST(DATEADD(DD,1,GETDATE()) as DATE),
-		@bloque varchar(32)='', @id_ejecucion int=0
-declare @tablaPacientes TypePacienteWhatsapp
-
-select top 1 @bloque=bloque from parametro
-
-select @id_ejecucion=max(id_ejecucion) from mobile_notificacion
-select @id_ejecucion=ISNULL(@id_ejecucion,0) + 1
-DROP TABLE IF EXISTS #temp_citas
 create table #temp_citas(
  id int identity(1,1),
  id_cita int,
@@ -49,7 +36,7 @@ create table #temp_citas(
  tipo_confirmacion varchar(32),
  paciente varchar(128)
 )
-DROP TABLE IF EXISTS #temp_paquetes
+
 create table #temp_paquetes(
  id int identity(1,1),
  id_paquete int,
@@ -57,13 +44,13 @@ create table #temp_paquetes(
  fecha_negrita datetime,
  dias int
 )
-DROP TABLE IF EXISTS #temp_dia_notificacion
+
 create table #temp_dia_notificacion(
  id int identity(1,1),
  dia int,
  hora int
 )
-DROP TABLE IF EXISTS #temp_citas_unir
+
 create table #temp_citas_unir
 (  
  id int identity(1,1),
@@ -126,7 +113,6 @@ from paquete p
 where p.es_negrita = 1 
 and datediff(dd,p.fecha_negrita,cast(floor(convert(float,GETDATE())) as datetime)) <= 21
 and p.id_paciente not in (select mn.id_usuario from mobile_notificacion mn where mn.tipo_notificacion in ('PN-1','PN-2') and mn.fecha_envio is null)
-/*********************************************************************************/
 
 if @tipo_ejecucion=0
  BEGIN
@@ -213,17 +199,30 @@ else
 						 from #temp_citas_unir
 						 where borrar=0	 
  END
+
+
+
+
+/***************************************************************************************************************/
+/*
+	@tipo_ejecucion=0 notificaciones viejas, clientes v1, v2
+	@tipo_ejecucion=1 clientes v3 corre a las 8:40 para las notificaciones de las 9:00, PN-1, PN-2
+	@tipo_ejecucion=2 clientes v3 corre a las 11:40 para las notificaciones de las 12:00
+	@tipo_ejecucion=3 clientes v3 corre a las 14:40 para las notificaciones de las 15:00
+	@tipo_ejecucion=4 clientes v3 corre a las 15:40 para las notificaciones de las 16:00 via SMS
+*/
 /***************************************************************************************************************/
 
-DROP TABLE IF EXISTS #mobile_notificacion
-select top 1 id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion into #mobile_notificacion from mobile_notificacion
-delete from #mobile_notificacion
-/*************************************NOTIFICACIONES VIEJAS*****************************************************/
 
+
+
+
+/***************************************************************************************************************/
+/*************************************NOTIFICACIONES VIEJAS*****************************************************/
 if @tipo_ejecucion=0
 BEGIN
 	--CONFIRMACION 24HRS
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			'CC',
@@ -235,7 +234,7 @@ BEGIN
 	where cast(floor(convert(float,c.fecha_inicio)) as datetime) = cast(floor(convert(float,dateadd(dd,1,GETDATE()))) as datetime)
 	
 	--RECORDATORIO 3HRS
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			'RC-3',
@@ -247,7 +246,7 @@ BEGIN
 	where cast(floor(convert(float,c.fecha_inicio)) as datetime) = cast(floor(convert(float,GETDATE())) as datetime)
 
 	--RECORDATORIO 1HR
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			'RC-1',
@@ -263,7 +262,7 @@ BEGIN
 		begin
 
 
-				insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+				insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 				select c.id_paciente,
 						'Cliente',
 						'CV-10',
@@ -275,7 +274,7 @@ BEGIN
 				where cast(floor(convert(float,c.fecha_inicio)) as datetime) = cast(floor(convert(float,dateadd(dd,1,GETDATE()))) as datetime)
 				and dbo.fn_es_cita_valoracion(id_cita) = 1
 
-				insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+				insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 				select c.id_paciente,
 						'Cliente',
 						'CV-12',
@@ -287,7 +286,7 @@ BEGIN
 				where cast(floor(convert(float,c.fecha_inicio)) as datetime) = cast(floor(convert(float,dateadd(dd,1,GETDATE()))) as datetime)
 				and dbo.fn_es_cita_valoracion(id_cita) = 1
 
-				insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+				insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 				select c.id_paciente,
 						'Cliente',
 						'CV-15',
@@ -304,16 +303,31 @@ BEGIN
 		end
 END
 /*************************************NOTIFICACIONES VIEJAS*****************************************************/
+/***************************************************************************************************************/
 
 
+/* RM: Aparte de insertar notificaciones para App, se van a insertar para Whatsapp */
+declare @tablaPacientes TypePacienteWhatsapp
+----------------------------CSHICA--14/04/2021-----------------------------------------------------------
+DROP TABLE IF EXISTS #TABLA_PACIENTES
+CREATE TABLE #TABLA_PACIENTES
+(
+	id INT identity(1,1)
+	,id_paciente INT
+	,mensaje varchar(max)
+	,fecha_hora_msj DATETIME
+)
+-----------------------------------------------------------------------------------------
+/***************************************************************************************************************/
 /*************************************NOTIFICACIONES NUEVAS*****************************************************/
+
 if @tipo_ejecucion=1
 BEGIN
 	--RECORDATORIO DIA DE LA CITA 3 HORAS ANTES DE LA CITA
 	--CITAS DESPUES DE LAS 12:00 SE NOTIFICAN A LAS 12:00					@tipo_ejecucion=2
 	--CITAS ENTRE 10:00 y 12:00 SE NOTIFICAN A LAS 9:00						@tipo_ejecucion=1
 	--CITAS ENTRE 08:00 y 10:00 SE NOTIFICAN UN DIA ANTES A LAS 8:00PM		@tipo_ejecucion=1
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			case when c.tipo_confirmacion='APP' then 'RC-3' else 'SMS-RC' end,
@@ -344,15 +358,13 @@ BEGIN
 	where CAST(DATEADD(DD,-1,c.fecha_inicio) as DATE) = @fecha	
 	and c.fecha_inicio < DATEADD(HH,10,@fecha_1dia)
 	and c.confirmada=1	
-	-------------------------------------------------------------------------------------------------------------------------------------------------
-	select @fecha fecha ,@fecha_1dia fecha1dia
 
-	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
+
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' + 
 					'Te recomendamos estar 10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas loción ni ' +
 					'ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
-					,c.fecha_inicio
 	from #temp_citas c	
 	where c.fecha_inicio between DATEADD(HH,10,@fecha) and DATEADD(HH,12,@fecha) 
 	and c.confirmada=1
@@ -362,7 +374,6 @@ BEGIN
 					'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
 					'10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas ' +
 					'loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
-					,c.fecha_inicio
 	from #temp_citas c
 	where CAST(DATEADD(DD,-1,c.fecha_inicio) as DATE) = @fecha	
 	and c.fecha_inicio < DATEADD(HH,10,@fecha_1dia)
@@ -374,7 +385,7 @@ BEGIN
 
 	
 	--RECORDATORIO 2 HORAS ANTES
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			case when c.tipo_confirmacion='APP' then 'RC-2' else 'SMS-RC' end,
@@ -390,12 +401,11 @@ BEGIN
 	where CAST(c.fecha_inicio as DATE) = @fecha
 	and c.confirmada=1
 
-	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' +
 					'Te recomendamos estar 10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas loción ni ' +
 					'ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
-					,c.fecha_inicio
 	from #temp_citas c
 	where CAST(c.fecha_inicio as DATE) = @fecha
 	and c.confirmada=1
@@ -407,7 +417,7 @@ BEGIN
 
 	
 	--RECORDATORIO 2 HORAS ANTES
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			case when c.tipo_confirmacion='APP' then 'RC-2' else 'SMS-RC' end,
@@ -425,10 +435,11 @@ BEGIN
 	where CAST(c.fecha_inicio as DATE) = @fecha
 	and c.confirmada=1
 END
+
 if @tipo_ejecucion=2
 BEGIN	 
 	--CONFIRMACION 2 DIAS ANTES 12:00
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			'CC',
@@ -441,29 +452,8 @@ BEGIN
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
-/**************************************************************************************************************
-MODIFICADO POR CSHICA:
-	1	Evita que se envíen dos mensajes 
-	    - Mensaje de alerta 
-	    - Mensaje con el link de confirmacion de cita
-	2	Se creó una nueva plantilla en twilio con esta nueva estructura (Name Template: confirmar_cita)
-**************************************************************************************************************/
-select @fecha fecha, @fecha_1dia fecha_dia1, @fecha_2dias fecha_dia2
-	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj )
-	select c.id_paciente,
-			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
-					'a las ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
-					'10 minutos antes, para evitar contratiempos. *Recuerda* que no puedes traer desodorante maquillaje cremas '+
-					'loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita.'+
-					'\n\nPara confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link'
-            ,c.fecha_inicio
-    from #temp_citas c
-	where c.confirmada=0
-	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
-/*************************************************************************************************************
-	--VALOR ANTERIOR (antes de la modificación de arriba)
-**************************************************************************************************************
-	insert into TABLA_PACIENTES (id_paciente, mensaje)
+	
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 					'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
@@ -474,16 +464,16 @@ select @fecha fecha, @fecha_1dia fecha_dia1, @fecha_2dias fecha_dia2
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
 	
-	insert into TABLA_PACIENTES (id_paciente, mensaje)
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Para confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link'
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
-***********************************************************************************/
+
 	
 	--RECORDATORIO 1 DIA ANTES 12:00
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			case when c.tipo_confirmacion='APP' then 'RC-1D' else 'SMS-RC' end,
@@ -499,13 +489,12 @@ select @fecha fecha, @fecha_1dia fecha_dia1, @fecha_2dias fecha_dia2
 	where CAST(c.fecha_inicio as DATE) = @fecha_1dia
 	and c.confirmada=1
 
-	insert into #TABLA_PACIENTES  (id_paciente, mensaje,fecha_hora_msj)
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 					'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
 					'10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje ' +
 					'cremas loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
-            ,c.fecha_inicio 
 	from #temp_citas c
 	where CAST(c.fecha_inicio as DATE) = @fecha_1dia
 	and c.confirmada=1
@@ -514,7 +503,7 @@ select @fecha fecha, @fecha_1dia fecha_dia1, @fecha_2dias fecha_dia2
 	--CITAS DESPUES DE LAS 12:00 SE NOTIFICAN A LAS 12:00					@tipo_ejecucion=2
 	--CITAS ENTRE 10:00 y 12:00 SE NOTIFICAN A LAS 9:00						@tipo_ejecucion=1
 	--CITAS ENTRE 08:00 y 10:00 SE NOTIFICAN UN DIA ANTES A LAS 8:00PM		@tipo_ejecucion=1
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			case when c.tipo_confirmacion='APP' then 'RC-3' else 'SMS-RC' end,
@@ -531,12 +520,11 @@ select @fecha fecha, @fecha_1dia fecha_dia1, @fecha_2dias fecha_dia2
 	and c.confirmada=1
 	and c.fecha_inicio > DATEADD(HH,12,@fecha)
 
-	insert into #TABLA_PACIENTES  (id_paciente, mensaje,fecha_hora_msj)
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' +
 					'Te recomendamos estar 10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas loción ni ' +
 					'ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
-            ,c.fecha_inicio 
 	from #temp_citas c
 	where CAST(c.fecha_inicio as DATE) = @fecha
 	and c.confirmada=1
@@ -548,7 +536,7 @@ select @fecha fecha, @fecha_1dia fecha_dia1, @fecha_2dias fecha_dia2
 
 	
 				--RECORDATORIO VALORACION 1 DIA ANTES 12:00
-				insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+				insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 				select c.id_paciente,
 						'Cliente',
 						case when c.tipo_confirmacion='APP' then 'CV-12' else 'SMS-RC' end,
@@ -568,10 +556,11 @@ select @fecha fecha, @fecha_1dia fecha_dia1, @fecha_2dias fecha_dia2
 		end
 
 END
+
 if @tipo_ejecucion=3
 BEGIN	 
 	--CONFIRMACION 2 DIAS ANTES 15:00
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select c.id_paciente,
 			'Cliente',
 			'CC',
@@ -585,49 +574,27 @@ BEGIN
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
-/**************************************************************************************************************
-MODIFICADO POR CSHICA:
-	No debería ejecutarse ya que con la lógica del Tipo de Ejecucion=2, cumple este requsito
 
-**************************************************************************************************************/
-/*	select @fecha fecha ,@fecha_1dia fecha1dia,@fecha_2dias fecha2dias
-	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
-	select c.id_paciente,
-			mensaje='Hola1!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
-					'a las ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
-					'10 minutos antes, para evitar contratiempos. *Recuerda* que no puedes traer desodorante maquillaje cremas '+
-					'loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita.'+
-					'\n\nPara confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link'
-					,c.fecha_inicio
 
-	from #temp_citas c
-	where c.confirmada=0
-	and CAST(c.fecha_inicio as DATE) = @fecha_2dias*/
-/*************************************************************************************************************
-	--VALOR ANTERIOR (antes de la modificación de arriba)
-**************************************************************************************************************
-	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 					'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
 					'10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas ' +
 					'loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
-					,c.fecha_inicio
-
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
-	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Para confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link'
-			,c.fecha_inicio
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
-***********************************************************************************/
 
 END
+
 if @tipo_ejecucion=4
 BEGIN	 
 	--CONFIRMACION 48HRS 16:00 VIA SMS
@@ -650,27 +617,9 @@ BEGIN
 	--where c.confirmada=0
 	--and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
-/**************************************************************************************************************
-MODIFICADO POR CSHICA:
-	No debería ejecutarse ya que con la lógica del Tipo de Ejecucion=2, cumple este requsito
-**************************************************************************************************************/
-	-- insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
-	-- select c.id_paciente,
-	-- 		mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
-	-- 				'a las ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
-	-- 				'10 minutos antes, para evitar contratiempos. *Recuerda* que no puedes traer desodorante maquillaje cremas '+
-	-- 				'loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita.'+
-	-- 				'\n\nPara confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link'
-	-- 				,c.fecha_inicio
 
-	-- from #temp_citas c
-	-- where c.confirmada=0
-	-- and CAST(c.fecha_inicio as DATE) = @fecha_2dias
-	print''--para que no caiga en error hacemos solo print, esta linea de debe borrar y colocar el algoritmo correspondiente
-/*************************************************************************************************************
-	--VALOR ANTERIOR (antes de la modificación de arriba)
-**************************************************************************************************************
-	insert into #TABLA_PACIENTES (id_paciente, mensaje)
+
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 					'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
@@ -680,16 +629,19 @@ MODIFICADO POR CSHICA:
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
-	insert into #TABLA_PACIENTES (id_paciente, mensaje)
+	insert into @tablaPacientes (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Para confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link'
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
-**************************************************************************************************************/
-END
 
+END
 /*************************************NOTIFICACIONES NUEVAS*****************************************************/
+/***************************************************************************************************************/
+
+
+
 if @tipo_ejecucion=0-- or @tipo_ejecucion=1
 BEGIN
 	/****************************LB20210311 Roberto solicito desactivar esta notificacion****************************/
@@ -723,7 +675,7 @@ BEGIN
 	/****************************AJAL20210317 Roberto solicito desactivar esta notificacion****************************/
 
 	--RECORDATORIO ACUDIR A SUCURSAL A PASAR TARJETA A MSI
-	insert into #mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
+	insert into mobile_notificacion (id_usuario,tipo_usuario,tipo_notificacion,mensaje,fecha_ejecucion,id_cita,id_ejecucion)
 	select p.id_paciente,
 			'Cliente',
 			'RP',
@@ -746,42 +698,18 @@ if @bloque='ESP'
 begin
 	update n set
 		fecha_ejecucion=dbo.fn_horario_con_timezone(n.fecha_ejecucion, pa.id_sucursal)
-	from #mobile_notificacion as n
+	from mobile_notificacion as n
 	join paciente pa on pa.id_paciente=n.id_usuario
 	where n.id_ejecucion=@id_ejecucion
 end
 
+-- Inserta las notificaciones de Whatsapp
+exec envia_whatsapp_cliente @tablaPacientes=@tablaPacientes
+
+drop table #temp_citas
+drop table #temp_dia_notificacion
+drop table #temp_paquetes
+drop table #temp_citas_unir
 
 
-
-
-
-
-	--select * from #mobile_notificacion where id_usuario=59966
-	--insert into #tablaPacientes
-	drop table if exists #tablaPacientes
-	select * into #tablaPacientes  from #TABLA_PACIENTES 
-/**************************************FIN DE TODO EL PROCESO****************************************************/
-	drop table if exists  #tablita
-	select id,id_paciente,mensaje,fecha_hora_msj,  min(fecha_hora_msj) over(PARTITION by fecha_hora_msj order by fecha_hora_msj desc ) orden  into #tablita from #tablaPacientes where id_paciente in(
-	select 
-	id_paciente 
-	from #tablaPacientes
-	
-	group by id_paciente
-
-	having count(*)>1
-	
-	)   
-	order by id_paciente, fecha_hora_msj
-
-	drop table if exists  #tablita1
-	select   ROW_NUMBER()  over(PARTITION by id_paciente ORDER BY (select null))  as orden,id,id_paciente,fecha_hora_msj into #tablita1 from #tablita 
-	--select * from #tablita1 --where id_paciente =516
-
-	-- select * from #tablaPacientes where id in(select id from #tablita1 where orden>1 ) order by id_paciente desc
-
-	--select * from #tablaPacientes order by id_paciente desc
-	delete from #tablaPacientes where id in(select id from #tablita1 where orden>1)
-	select * from #tablaPacientes  order by id_paciente desc
-
+END
