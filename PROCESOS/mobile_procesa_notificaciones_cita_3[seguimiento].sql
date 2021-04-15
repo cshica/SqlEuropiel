@@ -12,7 +12,7 @@ alter table #mobile_notificacion alter column  mensaje  nvarchar(max)
 select * from #mobile_notificacion
 *****************************************************************************/
 
-DECLARE @tipo_ejecucion INT=1
+DECLARE @tipo_ejecucion INT=4
 DROP TABLE IF EXISTS #TABLA_PACIENTES
 CREATE TABLE #TABLA_PACIENTES
 (
@@ -347,7 +347,7 @@ BEGIN
 
 	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
-			mensaje='Hola1!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' + 
+			mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' + 
 					'Te recomendamos estar 10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas loción ni ' +
 					'ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
 					,c.fecha_inicio
@@ -356,7 +356,7 @@ BEGIN
 	and c.confirmada=1
 	UNION
 	select c.id_paciente,
-			mensaje='Hola2!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
+			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 					'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
 					'10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas ' +
 					'loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
@@ -390,7 +390,7 @@ BEGIN
 
 	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
-			mensaje='Hola3!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' +
+			mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' +
 					'Te recomendamos estar 10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas loción ni ' +
 					'ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
 					,c.fecha_inicio
@@ -446,6 +446,7 @@ MODIFICADO POR CSHICA:
 	    - Mensaje con el link de confirmacion de cita
 	2	Se creó una nueva plantilla en twilio con esta nueva estructura (Name Template: confirmar_cita)
 **************************************************************************************************************/
+select @fecha fecha, @fecha_1dia fecha_dia1, @fecha_2dias fecha_dia2
 	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj )
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
@@ -498,7 +499,7 @@ MODIFICADO POR CSHICA:
 
 	insert into #TABLA_PACIENTES  (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
-			mensaje='Hola!, tu cita para depilarte se aproxima tttt , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
+			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 					'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
 					'10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje ' +
 					'cremas loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
@@ -582,24 +583,47 @@ BEGIN
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
+/**************************************************************************************************************
+MODIFICADO POR CSHICA:
+	No debería ejecutarse ya que con la lógica del Tipo de Ejecucion=2, cumple este requsito
 
+**************************************************************************************************************/
+/*	select @fecha fecha ,@fecha_1dia fecha1dia,@fecha_2dias fecha2dias
+	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
+	select c.id_paciente,
+			mensaje='Hola1!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
+					'a las ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
+					'10 minutos antes, para evitar contratiempos. *Recuerda* que no puedes traer desodorante maquillaje cremas '+
+					'loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita.'+
+					'\n\nPara confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link'
+					,c.fecha_inicio
 
-	insert into #TABLA_PACIENTES (id_paciente, mensaje)
+	from #temp_citas c
+	where c.confirmada=0
+	and CAST(c.fecha_inicio as DATE) = @fecha_2dias*/
+/*************************************************************************************************************
+	--VALOR ANTERIOR (antes de la modificación de arriba)
+**************************************************************************************************************
+	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 					'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
 					'10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas ' +
 					'loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
+					,c.fecha_inicio
+
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
-	insert into #TABLA_PACIENTES (id_paciente, mensaje)
+	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
 			mensaje='Para confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link'
+			,c.fecha_inicio
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
+***********************************************************************************/
 
 END
 if @tipo_ejecucion=4
@@ -624,8 +648,29 @@ BEGIN
 	--where c.confirmada=0
 	--and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
+/**************************************************************************************************************
+MODIFICADO POR CSHICA:
+	1	Evita que se envíen dos mensajes 
+	    - Mensaje de alerta 
+	    - Mensaje con el link de confirmacion de cita
+	2	Se creó una nueva plantilla en twilio con esta nueva estructura (Name Template: confirmar_cita)
+**************************************************************************************************************/
+	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
+	select c.id_paciente,
+			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
+					'a las ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
+					'10 minutos antes, para evitar contratiempos. *Recuerda* que no puedes traer desodorante maquillaje cremas '+
+					'loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita.'+
+					'\n\nPara confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link'
+					,c.fecha_inicio
 
+	from #temp_citas c
+	where c.confirmada=0
+	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
+/*************************************************************************************************************
+	--VALOR ANTERIOR (antes de la modificación de arriba)
+**************************************************************************************************************
 	insert into #TABLA_PACIENTES (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
@@ -642,7 +687,7 @@ BEGIN
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
-
+**************************************************************************************************************/
 END
 
 /*************************************NOTIFICACIONES NUEVAS*****************************************************/
@@ -733,10 +778,11 @@ end
 
 	drop table if exists  #tablita1
 	select   ROW_NUMBER()  over(PARTITION by id_paciente ORDER BY (select null))  as orden,id,id_paciente,fecha_hora_msj into #tablita1 from #tablita 
-	select * from #tablita where id_paciente =10132
+	--select * from #tablita1 --where id_paciente =516
 
-	 select * from #tablaPacientes where id in(select id from #tablita1 where orden>1) order by id_paciente desc
+	-- select * from #tablaPacientes where id in(select id from #tablita1 where orden>1 ) order by id_paciente desc
 
 	--select * from #tablaPacientes order by id_paciente desc
-	--delete from #tablaPacientes where id in(select id from #tablita1 where orden>1)
+	delete from #tablaPacientes where id in(select id from #tablita1 where orden>1)
 	select * from #tablaPacientes  order by id_paciente desc
+
