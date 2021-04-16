@@ -1,4 +1,4 @@
-USE [rm_europiel_espana]
+USE [rm_europiel]
 --select * from TEMPORAL_TABLE_ENVIOS where ID_PACIENTE=59966
 /**********************************************************************
 declare @fecha datetime = CAST(GETDATE() AS DATE), @fecha_2dias datetime = CAST(DATEADD(DD,2,GETDATE()) as DATE), @fecha_1dia datetime = CAST(DATEADD(DD,1,GETDATE()) as DATE),
@@ -13,7 +13,7 @@ alter table #mobile_notificacion alter column  mensaje  nvarchar(max)
 select * from #mobile_notificacion
 *****************************************************************************/
 
-DECLARE @tipo_ejecucion INT=1
+DECLARE @tipo_ejecucion INT=2
 DROP TABLE IF EXISTS #TABLA_PACIENTES
 CREATE TABLE #TABLA_PACIENTES
 (
@@ -766,6 +766,7 @@ end
 	select id,id_paciente,mensaje,fecha_hora_msj,  min(fecha_hora_msj) over(PARTITION by fecha_hora_msj order by fecha_hora_msj desc ) orden  into #tablita from #tablaPacientes where id_paciente in(
 	select 
 	id_paciente 
+	--,count(*)
 	from #tablaPacientes
 	
 	group by id_paciente
