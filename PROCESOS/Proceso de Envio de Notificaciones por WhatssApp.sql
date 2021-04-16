@@ -1,3 +1,5 @@
+use rm_europiel_espana
+GO
 declare @fecha datetime = CAST(GETDATE() AS DATE)
 	, @fecha_2dias datetime = CAST(DATEADD(DD,2,GETDATE()) as DATE)
 	, @fecha_1dia datetime = CAST(DATEADD(DD,1,GETDATE()) as DATE)
@@ -107,6 +109,7 @@ insert into #temp_citas_unir (id_cita, id_paciente, fecha_inicio, fecha_fin, id_
 -- 	,envio_confirmar datetime --48 HORAS ANTES
 -- 	,envio_recordatorio1 datetime--24 HORAS ANTES
 -- 	,envio_recordatorio2 datetime--3 HORAS ANTES
+-- 	,enviado bit
 -- 	,recordado1 bit
 -- 	,recordado2 bit
 --  ,HORA_EJECUCION DATETIME
@@ -115,8 +118,8 @@ insert into #temp_citas_unir (id_cita, id_paciente, fecha_inicio, fecha_fin, id_
 
 drop table if exists  #TABLA_NOTIFI_TEST_temp
 
-SELECT *,dateadd(MI,1,GETDATE() ) envio_confirmar ,dateadd(MI,2,GETDATE()) envio_recordatorio1,dateadd(MI,3,GETDATE()) envio_recordatorio2,0 recordado1,0 recordado2,GETDATE() HORA_EJECUCION INTO #TABLA_NOTIFI_TEST_temp FROM #temp_citas
---SELECT *,fecha_inicio -2 ,fecha_inicio -1,dateadd(hh,-3,fecha_inicio ),0,0 FROM #temp_citas
+SELECT *,dateadd(MI,1,fecha_inicio ) envio_confirmar ,dateadd(MI,2,fecha_inicio) envio_recordatorio1,dateadd(MI,3,fecha_inicio) envio_recordatorio2,0 enviado,0 recordado1,0 recordado2,GETDATE() HORA_EJECUCION INTO #TABLA_NOTIFI_TEST_temp FROM #temp_citas
+-- SELECT *,fecha_inicio -2 ,fecha_inicio -1,dateadd(hh,-3,fecha_inicio ),0,0 FROM #temp_citas
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 --	BORRAMOS LOS REGISTROS REPETIDOS
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -154,39 +157,52 @@ SELECT *,dateadd(MI,1,GETDATE() ) envio_confirmar ,dateadd(MI,2,GETDATE()) envio
 
 -- ELIMINAMOS DE LA TABLA TODOS LOS REGISTROS REPETIDOS, QUE SON LOS QUUE ANTERIORMENTE TENIAN orden >1
 	delete from #TABLA_NOTIFI_TEST_temp where id in(select id from #tablita1 where orden>1)
---INSERTAMOS LOS VALORES SIN REPETIR EN LA TABLA
-    
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+--	FIN DEL PROCESO BORRAR LOS REGISTROS REPETIDOS
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/*
+	INSERTAMOS LOS VALORES SIN REPETIR EN LA TABLA
+	===============================================
+	- Como este procesos va ejecutarse cada minuto, los registros que son guardados en la tabla temporal #TABLA_NOTIFI_TEST_temp, 
+	deben ser comparados con la tabla física TABLA_NOTIFI_TEST, y luego, insertar a la tabla física TABLA_NOTIFI_TEST, solo los valores que NO SE REPITEN.
+
+	- Para esta evaluación nos basamos en la columna HORA_EJECUCION de la tabla TABLA_NOTIFI_TEST
+*/ 
+
     DECLARE @HORA_EJECUCION DATETIME=(SELECT MAX(HORA_EJECUCION) FROM TABLA_NOTIFI_TEST)
     DECLARE @HORA_CADENA VARCHAR(16)=substring( convert(varchar(100),@HORA_EJECUCION,21 ),1,16)
     SET @HORA_EJECUCION =CONVERT(DATETIME,@HORA_CADENA,21)
 
     DECLARE @HORA_EVALUAR DATETIME=CONVERT(DATETIME,(substring( convert(varchar(100),GETDATE(),21 ),1,16)),21)
-    SELECT  @HORA_EVALUAR ,@HORA_EJECUCION
+    SELECT  @HORA_EVALUAR hora_evalua ,@HORA_EJECUCION HORA_EJECUCION
 
     IF(@HORA_EVALUAR>=@HORA_EJECUCION)
     BEGIN
         insert into TABLA_NOTIFI_TEST
         
         select * from  #TABLA_NOTIFI_TEST_temp 
-        WHERE id_cita IN
+        WHERE id_cita not IN
         (
-        select t.id_cita  from  #TABLA_NOTIFI_TEST_temp tt
+        select tt.id_cita from  #TABLA_NOTIFI_TEST_temp tt
         inner join TABLA_NOTIFI_TEST t on t.id_cita=tt.id_cita
-        group by t.id_cita
-        having count(*)=1
-        --order by t.id_cita desc 
+        group by tt.id_cita
         )
     END
-    ELSE 
+
+    IF(@HORA_EJECUCION is null)
     BEGIN
         insert into TABLA_NOTIFI_TEST   
         select * from  #TABLA_NOTIFI_TEST_temp 
     END
-   
----------------------------------------------------------------------------------------------------------------------------------------------------------
--- FIN DEL BORRADO DE REGISTROS REPETIDOS
----------------------------------------------------------------------------------------------------------------------------------------------------------
+ ---------------------------------------------------------------------------------------------------------------------------------------------------------  
+--select * from TABLA_NOTIFI_TEST order by hora_ejecucion desc
+
 	--select id_paciente,count(*) from TABLA_NOTIFI_TEST group by id_paciente having count(*)>1 order by id_paciente desc
+/****************************************************************************************************************************************************************/
+
+
+
 
 declare @fecha_hora datetime= getdate()
 select c.id_paciente,
@@ -196,7 +212,7 @@ select c.id_paciente,
 			,c.envio_confirmar
 	from TABLA_NOTIFI_TEST c	
 	where substring( convert(varchar(100),c.envio_confirmar,21 ),1,16) = substring( convert(varchar(100),@fecha_hora,21 ),1,16)
-	and c.confirmada=0
+	and c.enviado=0
 
 union
 
