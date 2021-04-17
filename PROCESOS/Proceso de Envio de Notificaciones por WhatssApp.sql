@@ -212,9 +212,6 @@ BEGIN
 		Mensaje 2. Recordatorio 24 horas antes de la cita1
 		Mensaje 3. Recordatorio 3 horas antes de la cita
 	*/
-	----------------------------------------------------------------------------------
-	--MENSAJE 1:Confirmación de cita 2 días antes de la cita (48hrs. antes de la cita)
-	----------------------------------------------------------------------------------
 
 	update TABLA_NOTIFI_WHATSAPP set 
 	envio_confirmar		=CONVERT(DATETIME,substring( convert(varchar(100),envio_confirmar,21 ),1,16),21)
@@ -240,6 +237,9 @@ BEGIN
 	)
 	declare @fecha_hora datetime= CONVERT(DATETIME,substring( convert(varchar(100),GETDATE(),21 ),1,16),21)
 	insert into @TABLA_ENVIOS
+	----------------------------------------------------------------------------------
+	--MENSAJE 1:Confirmación de cita 2 días antes de la cita (48hrs. antes de la cita)
+	----------------------------------------------------------------------------------
 	select c.id_paciente,
 				mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 						'a las ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
@@ -252,6 +252,9 @@ BEGIN
 		and c.enviado=0
 
 	union
+	----------------------------------------------------------------------------------
+	--MENSAJE 2:Recordatorio de cita 1 día antes de la cita (24hrs. antes de la cita)
+	----------------------------------------------------------------------------------
 	select c.id_paciente,
 				mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 						'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
@@ -261,6 +264,9 @@ BEGIN
 		where  c.envio_recordatorio1  =  @fecha_hora 
 		and c.recordado1=0
 	union
+	----------------------------------------------------------------------------------
+	--MENSAJE 3:Recordatorio de cita 3 horas antes de la cita (3hrs. antes de la cita)
+	----------------------------------------------------------------------------------
 	select c.id_paciente,
 				mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' +
 						'Te recomendamos estar 10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas loción ni ' +
