@@ -1,3 +1,5 @@
+use rm_europiel_requerimientos
+GO
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -615,7 +617,7 @@ payload =
 	-- HGU
 	and nm.fecha_envio is null
 	--CSHICA:   AGREGADO PARA QUE LOS MENSAJES SE ENVIEN ENTRE LAS 9 DE LA MAÑANA Y 9 DE LA NOCHE
-	AND (CAST(TH.HORA AS TIME) BETWEEN '09:00:00' AND '21:00:00')
+	AND (CAST(TH.HORA AS TIME) BETWEEN '07:00:00' AND '21:00:00')
 
 	order by nm.id_detalle
 --	and len(isNull(nm.telefono,''))>5
