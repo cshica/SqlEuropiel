@@ -406,6 +406,9 @@ as
 	--select * from #TABLA_HORAS
 	--DROP table #TABLA_HORAS
 --======================================================================
+declare @hora_inico TIME =(select HoraIncioEnvio from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO  where id=1)
+declare @hora_fin TIME=(select HoraFinEnvio from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO  where id=1)
+--======================================================================
 	IF @mobile_os IS NULL
 	BEGIN
 		select top 450 nm.id_detalle, 
@@ -431,7 +434,7 @@ as
 		-- HGU
 		and nm.fecha_envio is null
 		--CSHICA:   AGREGADO PARA QUE LOS MENSAJES SE ENVIEN ENTRE LAS 9 DE LA MAÑANA Y 9 DE LA NOCHE
-		AND (CAST(TH.HORA AS TIME) BETWEEN '08:00:00' AND '21:00:00')
+		AND (CAST(TH.HORA AS TIME) BETWEEN @hora_inico AND @hora_fin)
 		order by nm.id_detalle
 	--	and len(isNull(nm.telefono,''))>5
 	END
@@ -460,8 +463,7 @@ as
 		-- HGU
 		and nm.fecha_envio is null
 		--CSHICA:   AGREGADO PARA QUE LOS MENSAJES SE ENVIEN ENTRE LAS 9 DE LA MAÑANA Y 9 DE LA NOCHE
-		AND (CAST(TH.HORA AS TIME) BETWEEN '08:00:00' AND '21:00:00')
-		and nm.id_usuario='59966'
+		AND (CAST(TH.HORA AS TIME) BETWEEN @hora_inico AND @hora_fin)
 		AND mobile_os=@mobile_os
 		order by nm.id_detalle
 	END
