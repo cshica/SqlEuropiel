@@ -291,7 +291,7 @@ where
 	------------------------------------------------------------------------
 	-- insert into #TABLA_ENVIOS
 	-- select id_paciente,mensaje from @TABLA_ENVIOS
-	--exec envia_whatsapp_cliente_test @tablaPacientes=@TABLA_ENVIOS --PARA PREUBAS
+	--exec envia_whatsapp_cliente_test @tablaPacientes=@TABLA_ENVIOS --PARA PRUEBAS
 	exec envia_whatsapp_cliente @tablaPacientes=@TABLA_ENVIOS -- PARA PRODUCCION
 	-----------------------------------------------------------------------
 END
