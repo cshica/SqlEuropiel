@@ -18,14 +18,14 @@
 	set @hora_bra=dateadd(HOUR,3,@hora_mex)
 	
 	--select @hora_mex MEX,@hora_esp ESP,@hora_col COL,@hora_cri CRI
-    DROP TABLE IF EXISTS  HORAS_POR_PAIS
-	CREATE TABLE  HORAS_POR_PAIS
+    DROP TABLE IF EXISTS  #HORAS_POR_PAIS
+	CREATE TABLE  #HORAS_POR_PAIS
 	(
 		bloque varchar(5)
 		,pais NVARCHAR(50)
 		,HORA datetime
 	)
-	insert into  HORAS_POR_PAIS
+	insert into  #HORAS_POR_PAIS
 	SELECT B.abreviatura,P.nombre,
 	(CASE 
 	WHEN P.nombre='MEXICO' THEN @hora_mex 
@@ -38,3 +38,4 @@
 	END) HORA
 	 FROM rm_europiel.DBO.bloque B 
 	INNER JOIN rm_europiel.dbo.PAIS P ON B.id_pais=P.id_pais
+	select * from #HORAS_POR_PAIS

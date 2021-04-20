@@ -1,32 +1,4 @@
-use rm_europiel
-GO
-	DROP TABLE IF EXISTS TABLA_NOTIFI_WHATSAPP
-	CREATE TABLE TABLA_NOTIFI_WHATSAPP
-	(	id INT
-		,id_cita int
-		,id_paciente int
-		,fecha_inicio datetime
-		,id_sucursal int
-		,sucursal varchar(100)
-		,confirmada int
-		,fecha_confirmacion datetime
-		,tipo_confirmacion varchar(20)
-		,paciente varchar(50)
-		,envio_confirmar datetime --48 HORAS ANTES
-		,envio_recordatorio1 datetime--24 HORAS ANTES
-		,envio_recordatorio2 datetime--3 HORAS ANTES
-		,enviado bit
-		,recordado1 bit
-		,recordado2 bit
-	 ,HORA_EJECUCION DATETIME
-	)
-GO
-DROP PROC IF EXISTS NotificarWhastApp
-GO
-CREATE procedure NotificarWhastApp
-as
-BEGIN
-	declare @fecha datetime = CAST(GETDATE() AS DATE)
+declare @fecha datetime = CAST(GETDATE() AS DATE)
 		, @fecha_2dias datetime = CAST(DATEADD(DD,2,GETDATE()) as DATE)
 		, @fecha_1dia datetime = CAST(DATEADD(DD,1,GETDATE()) as DATE)
 		, @bloque varchar(32)=''
@@ -48,7 +20,8 @@ BEGIN
 	confirmada int,
 	fecha_confirmacion datetime,
 	tipo_confirmacion varchar(32),
-	paciente varchar(128)
+	paciente varchar(128),
+    bloque varchar(5)
 	)
 
 	drop table if exists #temp_citas_unir
@@ -64,15 +37,17 @@ BEGIN
 	confirmada int,
 	fecha_confirmacion datetime,
 	tipo_confirmacion varchar(32),
+    bloque varchar(5),
 	id_padre int default 0,
 	es_padre int,
 	borrar int default 0
 	)
-	insert into #temp_citas_unir (id_cita, id_paciente, fecha_inicio, fecha_fin, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion)
+	insert into #temp_citas_unir (id_cita, id_paciente, fecha_inicio, fecha_fin, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion,bloque)
 		select id_cita, c.id_paciente, c.fecha_inicio, c.fecha_fin, c.id_sucursal, s.descripcion,
 				(case when c.fecha_confirmacion is null then 0 else 1 end),
 				c.fecha_confirmacion,
-				c.tipo_confirmacion
+				c.tipo_confirmacion,
+                (select b.abreviatura from rm_europiel.dbo.bloque b where id_bloque=s.id_bloque) bloque
 		from cita c
 		join sucursal s on s.id_sucursal = c.id_sucursal
 		join paciente pa on pa.id_paciente = c.id_paciente
@@ -113,16 +88,19 @@ BEGIN
 			select @currUnirId = @currUnirId + 1
 		end
 		
-		insert into #temp_citas (id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, paciente)
-							select id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, dbo.fn_paciente_primer_nombre(id_paciente)
+		insert into #temp_citas (id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, paciente,bloque)
+							select id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, dbo.fn_paciente_primer_nombre(id_paciente),bloque
 							from #temp_citas_unir
 							where borrar=0
 							
+	--select * from #temp_citas
+
 	drop table if exists  #TABLA_NOTIFI_WHATSAPP_temp
 
 	--SELECT *,dateadd(MI,1,fecha_inicio ) envio_confirmar ,dateadd(MI,2,fecha_inicio) envio_recordatorio1,dateadd(MI,3,fecha_inicio) envio_recordatorio2,0 enviado,0 recordado1,0 recordado2,GETDATE() HORA_EJECUCION INTO #TABLA_NOTIFI_WHATSAPP_temp FROM #temp_citas
 	 SELECT *,(fecha_inicio -2) envio_confirmar,(fecha_inicio -1) envio_recordatorio1,dateadd(hh,-3,fecha_inicio ) envio_recordatorio2,0 enviado,0 recordado1,0 recordado2, GETDATE() HORA_EJECUCION INTO #TABLA_NOTIFI_WHATSAPP_temp  FROM #temp_citas
-	---------------------------------------------------------------------------------------------------------------------------------------------------------
+	--select * from #TABLA_NOTIFI_WHATSAPP_temp
+    ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	--	BORRAMOS LOS REGISTROS REPETIDOS
 	---------------------------------------------------------------------------------------------------------------------------------------------------------
 	--OBTENEMOS TODOS LOS id_paciente QUE SE REPITEN PARA LUEGO ELIMINAR LOS QUE TIENGAN MAYOR fecha_inicio
@@ -181,23 +159,32 @@ BEGIN
 
 		IF(@HORA_EVALUAR>=@HORA_EJECUCION)
 		BEGIN
-			insert into TABLA_NOTIFI_WHATSAPP
-			
+            drop table if exists #TABLA_NOTIFI_WHATSAPP
+            select top 1 * into #TABLA_NOTIFI_WHATSAPP from TABLA_NOTIFI_WHATSAPP
+			delete from #TABLA_NOTIFI_WHATSAPP
+
+			insert into #TABLA_NOTIFI_WHATSAPP
 			select * from  #TABLA_NOTIFI_WHATSAPP_temp 
 			WHERE id_cita not IN
 			(
 			select tt.id_cita from  #TABLA_NOTIFI_WHATSAPP_temp tt
-			inner join TABLA_NOTIFI_WHATSAPP t on t.id_cita=tt.id_cita
+			inner join #TABLA_NOTIFI_WHATSAPP t on t.id_cita=tt.id_cita
 			group by tt.id_cita
 			)
 		END
 
 		IF(@HORA_EJECUCION is null)
 		BEGIN
-			insert into TABLA_NOTIFI_WHATSAPP   
+			insert into #TABLA_NOTIFI_WHATSAPP   
 			select * from  #TABLA_NOTIFI_WHATSAPP_temp 
 		END
 	---------------------------------------------------------------------------------------------------------------------------------------------------------  
+	--select * from TABLA_NOTIFI_WHATSAPP order by hora_ejecucion desc
+	--SELECT substring( convert(varchar(100),GETDATE(),21 ),1,16)
+
+		--select id_paciente,count(*) from TABLA_NOTIFI_WHATSAPP group by id_paciente having count(*)>1 order by id_paciente desc
+	/****************************************************************************************************************************************************************/
+
 	/*
 		REGLAS:
 		Mensaje 1. Confirmación de cita 2 días antes de la cita (48hrs. antes de la cita)
@@ -205,27 +192,42 @@ BEGIN
 		Mensaje 3. Recordatorio 3 horas antes de la cita
 	*/
 
-	update TABLA_NOTIFI_WHATSAPP set 
+	update #TABLA_NOTIFI_WHATSAPP set 
 	envio_confirmar		=CONVERT(DATETIME,substring( convert(varchar(100),envio_confirmar,21 ),1,16),21)
 	,envio_recordatorio1=CONVERT(DATETIME,substring( convert(varchar(100),envio_recordatorio1,21 ),1,16),21)
 	,envio_recordatorio2=CONVERT(DATETIME,substring( convert(varchar(100),envio_recordatorio2,21 ),1,16),21)
 	,HORA_EJECUCION		=CONVERT(DATETIME,substring( convert(varchar(100),HORA_EJECUCION,21 ),1,16),21)
+	/*
+	SELECT CONVERT(DATETIME,substring( convert(varchar(100),GETDATE(),21 ),1,16),21)
+	use rm_europiel_espana
+	select * from TABLA_NOTIFI_WHATSAPP   order by hora_ejecucion desc
+	update TABLA_NOTIFI_WHATSAPP set envio_confirmar='2021-04-16 11:23:00.000' where id_cita=796050
 
---==========================================================================================================================================================================================
+	*/
+--======================================================================
 -- Los mensajes que estan programados para ser enviados en horarios fuera del rango de Envio de Notificaciones (tabla rm_europiel_requerimientos.CONFIGURACIONES_MENSAJES_TWILIO) 
--- que normalmente es de 8am a 9pm, se enviarán MEDIA HORA antes de la cita programada. (Ver rm_europiel_requerimientos.dbo.genera_notifier_mensajes_bienvenida_cliente)
+-- que normalmente es de 9am a 9pm, se enviarán MEDIA HORA antes de la cita programada. (Ver rm_europiel_requerimientos.dbo.genera_notifier_mensajes_bienvenida_cliente)
 -- recordatorios: Menores de las 9am se enviarán a las 8:30 am
 -- Obtenemos todos los registos que tengan una hora de envio que no esté en el rango de envíos (tabla rm_europiel_requerimientos.CONFIGURACIONES_MENSAJES_TWILIO)
--- y actualizamos su hora a MEDIA HORA antes para que pueda ser considerado el envío
---==========================================================================================================================================================================================
-declare @hora_inicio TIME =(select HoraIncioEnvio from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO  where id=1)
---==========================================================================================================================================================================================
-update  TABLA_NOTIFI_WHATSAPP set  envio_recordatorio2=DATEADD(MINUTE,-30,fecha_inicio) 
+-- y actualizamos su hora a media hora antes para que pueda ser considerado el envío
+--======================================================================
+--======================================================================
+declare @hora_inicio TIME=(select HoraIncioEnvio from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO  where id=1)
+declare @hora_fin TIME='23:59:00:000'--(select HoraFinEnvio from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO  where id=1)
+--======================================================================
+update  #TABLA_NOTIFI_WHATSAPP set  envio_recordatorio2=DATEADD(MINUTE,-30,fecha_inicio) 
 where 
 (
     cast(envio_recordatorio2 as time) <= @hora_inicio 
 )
---==========================================================================================================================================================================================
+-- select * from #TABLA_NOTIFI_WHATSAPP --order by fecha_inicio asc
+-- where 
+-- (
+--     cast(envio_recordatorio2 as time) <= @hora_inicio 
+-- )
+-- order by fecha_inicio asc
+    -- select * from rm_europiel_requerimientos.dbo.HORAS_POR_PAIS where 
+--======================================================================
 	declare @TABLA_ENVIOS TypePacienteWhatsapp
 	--SELECT substring( convert(varchar(100),GETDATE(),21 ),1,16)
 
@@ -247,7 +249,7 @@ where
 						'loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita.'+
 						'\n\nPara confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx?c=' + convert(varchar(16),c.id_cita) + '&p=' + convert(varchar(16),c.id_paciente) + '&b=' + @bloque + ' escribe OK para activar el link' 
 				
-		from TABLA_NOTIFI_WHATSAPP c	
+		from #TABLA_NOTIFI_WHATSAPP c	
 		where c.envio_confirmar =@fecha_hora
 		and c.enviado=0
 
@@ -260,7 +262,7 @@ where
 						'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
 						'10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje ' +
 						'cremas loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
-		from TABLA_NOTIFI_WHATSAPP c	
+		from #TABLA_NOTIFI_WHATSAPP c	
 		where  c.envio_recordatorio1  =  @fecha_hora 
 		and c.recordado1=0
 	union
@@ -271,27 +273,23 @@ where
 				mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' +
 						'Te recomendamos estar 10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas loción ni ' +
 						'ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
-		from TABLA_NOTIFI_WHATSAPP c	
+		from #TABLA_NOTIFI_WHATSAPP c	
 		where  c.envio_recordatorio2  =  @fecha_hora 
 		and c.recordado2=0
 
 	-------------------------------------------------------------------------
 	--actualizamos los valores
-	update TABLA_NOTIFI_WHATSAPP set enviado=1
+	update #TABLA_NOTIFI_WHATSAPP set enviado=1
 		where envio_confirmar =@fecha_hora
 		and enviado=0
 
-	update TABLA_NOTIFI_WHATSAPP set recordado1=1
+	update #TABLA_NOTIFI_WHATSAPP set recordado1=1
 		where envio_recordatorio1 =@fecha_hora
 		and recordado1=0
 
-	update TABLA_NOTIFI_WHATSAPP set recordado2=1
+	update #TABLA_NOTIFI_WHATSAPP set recordado2=1
 		where envio_recordatorio2 =@fecha_hora
 		and recordado2=0
 	------------------------------------------------------------------------
 	-- insert into #TABLA_ENVIOS
-	-- select id_paciente,mensaje from @TABLA_ENVIOS
-	--exec envia_whatsapp_cliente_test @tablaPacientes=@TABLA_ENVIOS --PARA PREUBAS
-	exec envia_whatsapp_cliente @tablaPacientes=@TABLA_ENVIOS -- PARA PRODUCCION
-	-----------------------------------------------------------------------
-END
+	 select id_paciente,mensaje from @TABLA_ENVIOS

@@ -1,0 +1,28 @@
+1. CREACION DE OBJETOS SQL
+    - TABLAS
+        * rm_europiel.dbo.TABLA_NOTIFI_WHATSAPP
+        * rm_europiel.dbo.TEMPORAL_TABLE_ENVIOS
+
+        * rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO
+        * rm_europiel_requerimientos.dbo.notifier_mensajes_whatsapp
+  
+    - PROCEDURES
+        * rm_europiel.dbo.NotificarWhastApp
+        * rm_europiel.dbo.envia_whatsapp_cliente_test
+        * rm_europiel.dbo.envia_whatsapp_cliente
+        * rm_europiel.dbo.mobile_procesa_notificaciones_cita
+
+
+        * rm_europiel_requerimientos.dbo.genera_notifier_mensajes_bienvenida_cliente_por_tipo_mensaje
+    
+    - JOBS 
+        * ENVIO_WHATSAPP_NUEVA_REGLA
+            AGREGAR UN STEP CON EL SIGUIENTE CODIGO;
+            EXEC [NOMBRE_BD].dbo.NotificarWhastApp;
+
+1. En cada BD ejecutar los siguientes scripts:
+    - TABLAS.SQL
+    - PROCEDURES.SQL
+    - mobile_procesa_notificaciones_cita.sql
+    - genera_notifier_mensajes_bienvenida_cliente_por.sql
+    - genera_notifier_mensajes_bienvenida_cliente_por_tipo_mensaje.sql

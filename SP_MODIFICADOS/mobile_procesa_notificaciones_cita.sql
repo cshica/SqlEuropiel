@@ -1,6 +1,6 @@
 USE [rm_europiel]
 GO
-/****** Object:  StoredProcedure [dbo].[mobile_procesa_notificaciones_cita]    Script Date: 14/04/2021 17:46:12 ******/
+/****** Object:  StoredProcedure [dbo].[mobile_procesa_notificaciones_cita]    Script Date: 19/04/2021 17:07:54 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -15,7 +15,6 @@ BEGIN
 --if getdate()<'20200531'
 --	print 'COVID'
 --	return
-
 
 declare @fecha datetime = CAST(GETDATE() AS DATE), @fecha_2dias datetime = CAST(DATEADD(DD,2,GETDATE()) as DATE), @fecha_1dia datetime = CAST(DATEADD(DD,1,GETDATE()) as DATE),
 		@bloque varchar(32)='', @id_ejecucion int=0
@@ -359,13 +358,14 @@ BEGIN
 	where CAST(DATEADD(DD,-1,c.fecha_inicio) as DATE) = @fecha	
 	and c.fecha_inicio < DATEADD(HH,10,@fecha_1dia)
 	and c.confirmada=1	
+/*
 
-
-	insert into #TABLA_PACIENTES (id_paciente, mensaje)
+	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' + 
 					'Te recomendamos estar 10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas loción ni ' +
 					'ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
+					,c.fecha_inicio
 	from #temp_citas c	
 	where c.fecha_inicio between DATEADD(HH,10,@fecha) and DATEADD(HH,12,@fecha) 
 	and c.confirmada=1
@@ -375,13 +375,14 @@ BEGIN
 					'alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
 					'10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas ' +
 					'loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
+					,c.fecha_inicio
 	from #temp_citas c
 	where CAST(DATEADD(DD,-1,c.fecha_inicio) as DATE) = @fecha	
 	and c.fecha_inicio < DATEADD(HH,10,@fecha_1dia)
 	and c.confirmada=1	
 
 
-
+*/
 
 
 	
@@ -401,17 +402,18 @@ BEGIN
 	from #temp_citas c
 	where CAST(c.fecha_inicio as DATE) = @fecha
 	and c.confirmada=1
-
-	insert into #TABLA_PACIENTES (id_paciente, mensaje)
+/*
+	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' +
 					'Te recomendamos estar 10 minutos antes, para evitar contratiempos. Recuerda que no puedes traer desodorante maquillaje cremas loción ni ' +
 					'ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita'
+					,c.fecha_inicio
 	from #temp_citas c
 	where CAST(c.fecha_inicio as DATE) = @fecha
 	and c.confirmada=1
 
-
+*/
 
 
 
@@ -460,7 +462,7 @@ MODIFICADO POR CSHICA:
 	    - Mensaje con el link de confirmacion de cita
 	2	Se creó una nueva plantilla en twilio con esta nueva estructura (Name Template: confirmar_cita)
 **************************************************************************************************************/
-	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
+/*	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
 					'a las ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. Te recomendamos estar ' +
@@ -470,7 +472,7 @@ MODIFICADO POR CSHICA:
 			,C.fecha_inicio
 	from #temp_citas c
 	where c.confirmada=0
-	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
+	and CAST(c.fecha_inicio as DATE) = @fecha_2dias*/
 /*************************************************************************************************************
 	--VALOR ANTERIOR (antes de la modificación de arriba)
 **************************************************************************************************************
@@ -509,7 +511,7 @@ MODIFICADO POR CSHICA:
 	from #temp_citas c
 	where CAST(c.fecha_inicio as DATE) = @fecha_1dia
 	and c.confirmada=1
-
+/*
 	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
@@ -520,7 +522,7 @@ MODIFICADO POR CSHICA:
 	from #temp_citas c
 	where CAST(c.fecha_inicio as DATE) = @fecha_1dia
 	and c.confirmada=1
-	
+*/	
 	--RECORDATORIO DIA DE LA CITA 3 HORAS ANTES DE LA CITA
 	--CITAS DESPUES DE LAS 12:00 SE NOTIFICAN A LAS 12:00					@tipo_ejecucion=2
 	--CITAS ENTRE 10:00 y 12:00 SE NOTIFICAN A LAS 9:00						@tipo_ejecucion=1
@@ -541,7 +543,7 @@ MODIFICADO POR CSHICA:
 	where CAST(c.fecha_inicio as DATE) = @fecha
 	and c.confirmada=1
 	and c.fecha_inicio > DATEADD(HH,12,@fecha)
-
+/*
 	insert into #TABLA_PACIENTES (id_paciente, mensaje,fecha_hora_msj)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el dia de hoy alas ' + lower(ltrim(right(convert(varchar(32),c.fecha_inicio,100),8))) + '. ' +
@@ -553,7 +555,7 @@ MODIFICADO POR CSHICA:
 	and c.confirmada=1
 	and c.fecha_inicio > DATEADD(HH,12,@fecha)
 
-
+*/
 	if GETDATE() > '20200731' -- Omitir valiraciones hasta el 31 de Julio
 		begin
 
@@ -597,8 +599,12 @@ BEGIN
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
+/**************************************************************************************************************
+MODIFICADO POR CSHICA:
+	No debería ejecutarse ya que con la lógica del Tipo de Ejecucion=2, cumple este requsito
 
-
+**************************************************************************************************************/
+/*
 	insert into #TABLA_PACIENTES (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
@@ -615,7 +621,7 @@ BEGIN
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
-
+*/
 END
 
 if @tipo_ejecucion=4
@@ -640,8 +646,12 @@ BEGIN
 	--where c.confirmada=0
 	--and CAST(c.fecha_inicio as DATE) = @fecha_2dias
 
+/**************************************************************************************************************
+MODIFICADO POR CSHICA:
+	No debería ejecutarse ya que con la lógica del Tipo de Ejecucion=2, cumple este requsito
 
-
+**************************************************************************************************************/
+/*
 	insert into #TABLA_PACIENTES (id_paciente, mensaje)
 	select c.id_paciente,
 			mensaje='Hola!, tu cita para depilarte se aproxima , el ' + dbo.fn_fecha_dia_mes(c.fecha_inicio,1) + ' ' +
@@ -658,7 +668,8 @@ BEGIN
 	from #temp_citas c
 	where c.confirmada=0
 	and CAST(c.fecha_inicio as DATE) = @fecha_2dias
-
+*/
+	print''--para que no caiga en error hacemos solo print, esta linea de debe borrar y colocar el algoritmo correspondiente
 END
 /*************************************NOTIFICACIONES NUEVAS*****************************************************/
 /***************************************************************************************************************/
@@ -728,12 +739,12 @@ end
 /****************************************************************************************************************************/
 --									PROCESO NUEVO
 /****************************************************************************************************************************/
---	CSHICA 14-04-2021
+--	CSHICA 14-04-2021 (NOTA: *****se comentó todo porque ya no se nececsita, es reemplazado por el procedure NotificarWhastApp********)
 --	De todos los mensajes que se enviarán al cliente como recordatorio por cada cita que tenga solo se enviará un mensaje.
 --	Si un cliente tiene 4 citas en un día, solo se enviará una notificacion por los 4 mensajes.
 --	La hora de envio de esta notificación será la la hora de la primera cita de todas las que tenía en el día.
 /****************************************************************************************************************************/
-	drop table if exists #tablaPacientes
+	/*drop table if exists #tablaPacientes
 	select * into #tablaPacientes  from #TABLA_PACIENTES 
 
 	drop table if exists  #tablita
@@ -759,15 +770,13 @@ end
 	--select * from #tablaPacientes order by id_paciente desc
 
 	insert  @tablaPacientes  (id_paciente,mensaje)
-	select id_paciente,mensaje  from #tablaPacientes
+	select id_paciente,mensaje  from #tablaPacientes*/
 /****************************************************************************************************************************/
 --									FIN DEL PROCESO NUEVO
 /****************************************************************************************************************************/
 
--- Inserta las notificaciones de Whatsapp
-exec envia_whatsapp_cliente @tablaPacientes=@tablaPacientes
-
-
+-- Inserta las notificaciones de Whatsapp (NOTA: ya no se nececita, esta siendo reemplazaod por el procedure NotificarWhastApp )
+--exec envia_whatsapp_cliente @tablaPacientes=@tablaPacientes
 
 drop table #temp_citas
 drop table #temp_dia_notificacion
