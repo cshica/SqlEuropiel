@@ -23,7 +23,8 @@
 Pasos: En cada BD ejecutar los siguientes scripts:
     
     - TABLA_NOTIFI_WHATSAPP.sql
-    - PROCEDURES.SQL
+    - envia_whatsapp_cliente.sql
+    - NotificarWhastApp.SQL
     - mobile_procesa_notificaciones_cita.sql
     =================================================================
     ::::::::::::SOLO EN LA BD rm_europiel_requerimientos ::::::::::::
