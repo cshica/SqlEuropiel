@@ -21,11 +21,13 @@
             EXEC [NOMBRE_BD].dbo.NotificarWhastApp;
 
 Pasos: En cada BD ejecutar los siguientes scripts:
-    - TABLAS.SQL
+    
+    - TABLA_NOTIFI_WHATSAPP.sql
     - PROCEDURES.SQL
     - mobile_procesa_notificaciones_cita.sql
     =================================================================
     ::::::::::::SOLO EN LA BD rm_europiel_requerimientos ::::::::::::
     =================================================================
+    - TABLAS.SQL
     - genera_notifier_mensajes_bienvenida_cliente.sql
     - genera_notifier_mensajes_bienvenida_cliente_por_tipo_mensaje.sql

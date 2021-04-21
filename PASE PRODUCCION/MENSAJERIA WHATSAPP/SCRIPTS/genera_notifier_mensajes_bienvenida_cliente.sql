@@ -1,6 +1,6 @@
 USE [rm_europiel_requerimientos]
 GO
-/****** Object:  StoredProcedure [dbo].[genera_notifier_mensajes_bienvenida_cliente]    Script Date: 19/04/2021 19:06:05 ******/
+/****** Object:  StoredProcedure [dbo].[genera_notifier_mensajes_bienvenida_cliente]    Script Date: 21/04/2021 06:33:05 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -555,21 +555,7 @@ payload =
 --============================================================================================
 --CSHICA:   AGREGADO PARA QUE LOS MENSAJES SE ENVIEN ENTRE LAS 9 DE LA MAÑANA Y 9 DE LA NOCHE
 --============================================================================================
-	DECLARE @hora_cri DATETIME--IGUAL QUE EN MEXICO
-	DECLARE @hora_hon DATETIME--IGUAL QUE EN MEXICO
-	DECLARE @hora_usa DATETIME--+01horas con respecto a mexico
-	declare @hora_esp DATETIME--+8horas con respecto a mexico
-	declare @hora_col DATETIME--+01 horas con respecto a mexico
-	declare @hora_bra DATETIME--+03 horas con respecto a mexico
 	DECLARE @hora_mex DATETIME=GETDATE()
-	
-	set @hora_cri=@hora_mex
-	set @hora_hon=@hora_mex
-	set @hora_usa= dateadd(HOUR,1,@hora_mex)
-	set @hora_esp= dateadd(HOUR,8,@hora_mex)
-	set @hora_col=dateadd(HOUR,1,@hora_mex)
-	set @hora_bra=dateadd(HOUR,3,@hora_mex)
-	
 	--select @hora_mex MEX,@hora_esp ESP,@hora_col COL,@hora_cri CRI
     DROP TABLE IF EXISTS #TABLA_HORAS 
 	CREATE TABLE #TABLA_HORAS
@@ -582,15 +568,16 @@ payload =
 	SELECT B.abreviatura,P.nombre,
 	(CASE 
 	WHEN P.nombre='MEXICO' THEN @hora_mex 
-	WHEN B.abreviatura='USA1' THEN @hora_usa 
-	WHEN P.nombre='ESPAÑA' THEN @hora_esp
-	WHEN P.nombre='COLOMBIA' THEN @hora_col 
-	WHEN P.nombre='COSTA RICA' THEN @hora_cri 
-	WHEN P.nombre='HONDURAS' THEN @hora_hon 
-	WHEN P.nombre='BRASIL' THEN @hora_bra 
+	WHEN B.abreviatura='USA1' THEN DATEADD(hour,C.dif_hora, @hora_mex )
+	WHEN P.nombre='ESPAÑA' THEN DATEADD(hour,C.dif_hora,@hora_mex)
+	WHEN P.nombre='COLOMBIA' THEN DATEADD(hour,C.dif_hora,@hora_mex) 
+	WHEN P.nombre='COSTA RICA' THEN DATEADD(hour,C.dif_hora,@hora_mex) 
+	WHEN P.nombre='HONDURAS' THEN DATEADD(hour,C.dif_hora,@hora_mex)
+	WHEN P.nombre='BRASIL' THEN DATEADD(hour,C.dif_hora,@hora_mex)
 	END) HORA
 	 FROM rm_europiel.DBO.bloque B 
 	INNER JOIN rm_europiel.dbo.PAIS P ON B.id_pais=P.id_pais
+	inner join rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO C on C.bloque=B.abreviatura
 
 	--select * from #TABLA_HORAS
 	--DROP table #TABLA_HORAS
