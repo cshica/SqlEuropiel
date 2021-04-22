@@ -20,8 +20,8 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
 	confirmada int,
 	fecha_confirmacion datetime,
 	tipo_confirmacion varchar(32),
-	paciente varchar(128),
-    bloque varchar(5)
+	paciente varchar(128)
+    --bloque varchar(5)
 	)
 
 	drop table if exists #temp_citas_unir
@@ -37,17 +37,17 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
 	confirmada int,
 	fecha_confirmacion datetime,
 	tipo_confirmacion varchar(32),
-    bloque varchar(5),
+    --bloque varchar(5),
 	id_padre int default 0,
 	es_padre int,
 	borrar int default 0
 	)
-	insert into #temp_citas_unir (id_cita, id_paciente, fecha_inicio, fecha_fin, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion,bloque)
+	insert into #temp_citas_unir (id_cita, id_paciente, fecha_inicio, fecha_fin, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion)
 		select id_cita, c.id_paciente, c.fecha_inicio, c.fecha_fin, c.id_sucursal, s.descripcion,
 				(case when c.fecha_confirmacion is null then 0 else 1 end),
 				c.fecha_confirmacion,
-				c.tipo_confirmacion,
-                (select b.abreviatura from rm_europiel.dbo.bloque b where id_bloque=s.id_bloque) bloque
+				c.tipo_confirmacion
+                --(select b.abreviatura from rm_europiel.dbo.bloque b where id_bloque=s.id_bloque) bloque
 		from cita c
 		join sucursal s on s.id_sucursal = c.id_sucursal
 		join paciente pa on pa.id_paciente = c.id_paciente
@@ -88,8 +88,8 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
 			select @currUnirId = @currUnirId + 1
 		end
 		
-		insert into #temp_citas (id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, paciente,bloque)
-							select id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, dbo.fn_paciente_primer_nombre(id_paciente),bloque
+		insert into #temp_citas (id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, paciente)
+							select id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, dbo.fn_paciente_primer_nombre(id_paciente)
 							from #temp_citas_unir
 							where borrar=0
 							
@@ -162,7 +162,7 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
             drop table if exists #TABLA_NOTIFI_WHATSAPP
             select top 1 * into #TABLA_NOTIFI_WHATSAPP from TABLA_NOTIFI_WHATSAPP
 			delete from #TABLA_NOTIFI_WHATSAPP
-
+			
 			insert into #TABLA_NOTIFI_WHATSAPP
 			select * from  #TABLA_NOTIFI_WHATSAPP_temp 
 			WHERE id_cita not IN
@@ -171,6 +171,7 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
 			inner join #TABLA_NOTIFI_WHATSAPP t on t.id_cita=tt.id_cita
 			group by tt.id_cita
 			)
+
 		END
 
 		IF(@HORA_EJECUCION is null)
@@ -178,6 +179,7 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
 			insert into #TABLA_NOTIFI_WHATSAPP   
 			select * from  #TABLA_NOTIFI_WHATSAPP_temp 
 		END
+		
 	---------------------------------------------------------------------------------------------------------------------------------------------------------  
 	--select * from TABLA_NOTIFI_WHATSAPP order by hora_ejecucion desc
 	--SELECT substring( convert(varchar(100),GETDATE(),21 ),1,16)
@@ -197,20 +199,52 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
 	,envio_recordatorio1=CONVERT(DATETIME,substring( convert(varchar(100),envio_recordatorio1,21 ),1,16),21)
 	,envio_recordatorio2=CONVERT(DATETIME,substring( convert(varchar(100),envio_recordatorio2,21 ),1,16),21)
 	,HORA_EJECUCION		=CONVERT(DATETIME,substring( convert(varchar(100),HORA_EJECUCION,21 ),1,16),21)
-	/*
-	SELECT CONVERT(DATETIME,substring( convert(varchar(100),GETDATE(),21 ),1,16),21)
-	use rm_europiel_espana
-	select * from TABLA_NOTIFI_WHATSAPP   order by hora_ejecucion desc
-	update TABLA_NOTIFI_WHATSAPP set envio_confirmar='2021-04-16 11:23:00.000' where id_cita=796050
-
-	*/
+--========================================================================================================================================================================================
+/*
+	CASO 1: Cuando la cita es para HOY:
+			-	CONFIRMACIÓN:	5 Minutos después de haberse creado la cita
+			-	RECORDATORIO1:	2 Hora antes de la cita
+			-	RECORDATORIO2:	30 minutos antes de la cita
+	CASO 2:	Cuando la cita es para MAÑANA:
+			-	CONFIRMACIÓN:	5 Minutos después de haberse creado la cita
+			-	RECORDATORIO1:	2 Hora antes de la cita
+			-	RECORDATORIO2:	30 minutos antes de la cita
+	CASO 3: Cuando la cita es para PASADO MAÑANA
+			-	CONFIRMACIÓN:	5 Minutos después de haberse creado la cita
+			-	RECORDATORIO1:	24 Hora antes de la cita
+			-	RECORDATORIO2:	3 horas antes de la cita
+*/
+--==========================================================================================================================================================================================
+---Consideramos la columna HORA_EJECUCION de la tabla TABLA_NOTIFI_WHATSAPP, como la fecha de creación de la cita.(comparar con la columna FECHA_ALTA de la tabla CITA)
+--CASO 1:
+	DECLARE @FECHA_INICIO DATE=CAST(@HORA_EJECUCION AS DATE)
+	
+	UPDATE T SET 
+	T.envio_confirmar=DATEADD(MINUTE,5, T.HORA_EJECUCION)
+	,T.recordado1=DATEADD(HOUR,-2, T.fecha_inicio)
+	,T.recordado2=DATEADD(MINUTE,-30, T.fecha_inicio)
+	   from #TABLA_NOTIFI_WHATSAPP  T
+	WHERE CAST(T.fecha_inicio AS DATE)=@FECHA_INICIO 
+--CASO 2:
+	UPDATE T SET 
+	T.envio_confirmar=DATEADD(MINUTE,5, T.HORA_EJECUCION)
+	,T.recordado1=DATEADD(HOUR,-2, T.fecha_inicio)
+	,T.recordado2=DATEADD(MINUTE,-30, T.fecha_inicio)
+	   from #TABLA_NOTIFI_WHATSAPP  T
+	WHERE CAST(T.fecha_inicio AS DATE)=DATEADD(DAY,1,@FECHA_INICIO )
+--CASO 3:
+	UPDATE T SET 
+	T.envio_confirmar=DATEADD(MINUTE,5, T.HORA_EJECUCION)
+	,T.recordado1=DATEADD(HOUR,-24, T.fecha_inicio)
+	,T.recordado2=DATEADD(HOUR,-3, T.fecha_inicio)
+	   from #TABLA_NOTIFI_WHATSAPP  T
+	WHERE CAST(T.fecha_inicio AS DATE)=DATEADD(DAY,2,@FECHA_INICIO )	
 --======================================================================
 -- Los mensajes que estan programados para ser enviados en horarios fuera del rango de Envio de Notificaciones (tabla rm_europiel_requerimientos.CONFIGURACIONES_MENSAJES_TWILIO) 
 -- que normalmente es de 9am a 9pm, se enviarán MEDIA HORA antes de la cita programada. (Ver rm_europiel_requerimientos.dbo.genera_notifier_mensajes_bienvenida_cliente)
 -- recordatorios: Menores de las 9am se enviarán a las 8:30 am
 -- Obtenemos todos los registos que tengan una hora de envio que no esté en el rango de envíos (tabla rm_europiel_requerimientos.CONFIGURACIONES_MENSAJES_TWILIO)
 -- y actualizamos su hora a media hora antes para que pueda ser considerado el envío
---======================================================================
 --======================================================================
 declare @hora_inicio TIME=(select HoraIncioEnvio from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO  where id=1)
 declare @hora_fin TIME='23:59:00:000'--(select HoraFinEnvio from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO  where id=1)
@@ -220,13 +254,6 @@ where
 (
     cast(envio_recordatorio2 as time) <= @hora_inicio 
 )
--- select * from #TABLA_NOTIFI_WHATSAPP --order by fecha_inicio asc
--- where 
--- (
---     cast(envio_recordatorio2 as time) <= @hora_inicio 
--- )
--- order by fecha_inicio asc
-    -- select * from rm_europiel_requerimientos.dbo.HORAS_POR_PAIS where 
 --======================================================================
 	declare @TABLA_ENVIOS TypePacienteWhatsapp
 	--SELECT substring( convert(varchar(100),GETDATE(),21 ),1,16)

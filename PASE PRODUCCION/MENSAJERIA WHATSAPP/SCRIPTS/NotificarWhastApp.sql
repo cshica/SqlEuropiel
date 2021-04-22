@@ -5,7 +5,7 @@ GO
 CREATE procedure NotificarWhastApp
 as
 BEGIN
-	declare @fecha datetime = CAST(GETDATE() AS DATE)
+declare @fecha datetime = CAST(GETDATE() AS DATE)
 		, @fecha_2dias datetime = CAST(DATEADD(DD,2,GETDATE()) as DATE)
 		, @fecha_1dia datetime = CAST(DATEADD(DD,1,GETDATE()) as DATE)
 		, @bloque varchar(32)=''
@@ -189,6 +189,47 @@ BEGIN
 	,envio_recordatorio1=CONVERT(DATETIME,substring( convert(varchar(100),envio_recordatorio1,21 ),1,16),21)
 	,envio_recordatorio2=CONVERT(DATETIME,substring( convert(varchar(100),envio_recordatorio2,21 ),1,16),21)
 	,HORA_EJECUCION		=CONVERT(DATETIME,substring( convert(varchar(100),HORA_EJECUCION,21 ),1,16),21)
+--========================================================================================================================================================================================
+/*
+	CASO 1: Cuando la cita es para HOY:
+			-	CONFIRMACIÓN:	5 Minutos después de haberse creado la cita
+			-	RECORDATORIO1:	2 Hora antes de la cita
+			-	RECORDATORIO2:	30 minutos antes de la cita
+	CASO 2:	Cuando la cita es para MAÑANA:
+			-	CONFIRMACIÓN:	5 Minutos después de haberse creado la cita
+			-	RECORDATORIO1:	2 Hora antes de la cita
+			-	RECORDATORIO2:	30 minutos antes de la cita
+	CASO 3: Cuando la cita es para PASADO MAÑANA
+			-	CONFIRMACIÓN:	5 Minutos después de haberse creado la cita
+			-	RECORDATORIO1:	24 Hora antes de la cita
+			-	RECORDATORIO2:	3 horas antes de la cita
+*/
+--==========================================================================================================================================================================================
+---Consideramos la columna HORA_EJECUCION de la tabla TABLA_NOTIFI_WHATSAPP, como la fecha de creación de la cita.(comparar con la columna FECHA_ALTA de la tabla CITA)
+--CASO 1:
+--	DECLARE @FECHA_INICIO DATE=CAST(@HORA_EJECUCION AS DATE)
+--	SELECT GETDATE()
+--	SELECT CONVERT(DATETIME,GETDATE())
+--	UPDATE T SET 
+--	T.envio_confirmar=DATEADD(MINUTE,5, T.HORA_EJECUCION)
+--	,T.envio_recordatorio1=DATEADD(HOUR,-2, T.fecha_inicio)
+--	,T.envio_recordatorio2=DATEADD(MINUTE,-30, T.fecha_inicio)
+--	   from TABLA_NOTIFI_WHATSAPP  T
+--	WHERE CAST(T.fecha_inicio AS DATE)=@FECHA_INICIO 
+----CASO 2:
+--	UPDATE T SET 
+--	T.envio_confirmar=DATEADD(MINUTE,5, T.HORA_EJECUCION)
+--	,T.envio_recordatorio1=DATEADD(HOUR,-2, T.fecha_inicio)
+--	,T.envio_recordatorio2=DATEADD(MINUTE,-30, T.fecha_inicio)
+--	   from TABLA_NOTIFI_WHATSAPP  T
+--	WHERE CAST(T.fecha_inicio AS DATE)=DATEADD(DAY,1,@FECHA_INICIO )
+----CASO 3:
+--	UPDATE T SET 
+--	T.envio_confirmar=DATEADD(MINUTE,5, T.HORA_EJECUCION)
+--	,T.envio_recordatorio1=DATEADD(HOUR,-24, T.fecha_inicio)
+--	,T.envio_recordatorio2=DATEADD(HOUR,-3, T.fecha_inicio)
+--	   from TABLA_NOTIFI_WHATSAPP  T
+--	WHERE CAST(T.fecha_inicio AS DATE)=DATEADD(DAY,2,@FECHA_INICIO )
 
 --==========================================================================================================================================================================================
 -- Los mensajes que estan programados para ser enviados en horarios fuera del rango de Envio de Notificaciones (tabla rm_europiel_requerimientos.CONFIGURACIONES_MENSAJES_TWILIO) 
