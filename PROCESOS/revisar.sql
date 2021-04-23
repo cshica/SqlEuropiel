@@ -1,12 +1,14 @@
---SELECT * FROM CONFIGURACIONES_MENSAJES_TWILIO
-select * from rm_europiel.dbo.TABLA_NOTIFI_WHATSAPP 
---where ID_PACIENTE=60176
-WHERE id_cita=1410360
---WHERE CAST(fecha_inicio AS DATE)=CAST(GETDATE() AS DATE)
+select * from TABLA_NOTIFI_WHATSAPP 
+where cast(HORA_EJECUCION as date)=cast(GETDATE() as date)
+--and id_paciente=25226
 order by HORA_EJECUCION desc
+--select * from #tabla
 
-SELECT * FROM rm_europiel_requerimientos.dbo.notifier_mensajes
-where mobile_os='whatsapp'
-and CAST(fecha_alta_registro AS DATE)=CAST(GETDATE() AS DATE)
-and id_usuario=58779
-order by id_detalle desc
+select * from rm_europiel_requerimientos.dbo.notifier_mensajes
+where 
+mobile_os='whatsapp'
+and id_notifier=5
+and cast(fecha_alta_registro as date)=cast(GETDATE() as date)
+--and bloque not like '%ESP%'
+--and id_usuario=36746
+order by fecha_alta_registro,id_usuario desc
