@@ -10,6 +10,7 @@
 		,fecha_confirmacion datetime
 		,tipo_confirmacion varchar(20)
 		,paciente varchar(50)
+		,telefono nvarchar(30)
 		,envio_confirmar datetime --48 HORAS ANTES
 		,envio_recordatorio1 datetime--24 HORAS ANTES
 		,envio_recordatorio2 datetime--3 HORAS ANTES

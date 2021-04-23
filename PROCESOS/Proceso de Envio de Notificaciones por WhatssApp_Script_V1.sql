@@ -27,7 +27,8 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
 	confirmada int,
 	fecha_confirmacion datetime,
 	tipo_confirmacion varchar(32),
-	paciente varchar(128)
+	paciente varchar(128),
+	telefono nvarchar(30)
 	)
 
 	drop table if exists #temp_citas_unir
@@ -45,16 +46,21 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
 	tipo_confirmacion varchar(32),
 	id_padre int default 0,
 	es_padre int,
-	borrar int default 0
+	borrar int default 0,
+	telefono nvarchar(30)
 	)
-	insert into #temp_citas_unir (id_cita, id_paciente, fecha_inicio, fecha_fin, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion)
+	insert into #temp_citas_unir (id_cita, id_paciente, fecha_inicio, fecha_fin, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion,telefono)
 		select id_cita, c.id_paciente, c.fecha_inicio, c.fecha_fin, c.id_sucursal, s.descripcion,
 				(case when c.fecha_confirmacion is null then 0 else 1 end),
 				c.fecha_confirmacion,
-				c.tipo_confirmacion
+				c.tipo_confirmacion,
+				telefono=(case when ltrim(rtrim(pa.telefono_2)) like '+%' then replace(replace(replace(replace(pa.telefono_2,' ',''),'-',''),'(',''),')','')
+						else '+' + p.codigo_pais + left(replace(replace(replace(replace(replace(pa.telefono_2,' ',''),'-',''),'+',''),'(',''),')',''),p.longitud_celulares)
+					end)
 		from cita c
 		join sucursal s on s.id_sucursal = c.id_sucursal
 		join paciente pa on pa.id_paciente = c.id_paciente
+		JOIN PAIS p ON p.id_pais=s.id_pais
 		where c.estatus <> 'B'
 		and CAST(c.fecha_inicio AS DATE) between @fecha and @fecha_2dias
 		and pa.version_api in (3)
@@ -92,8 +98,8 @@ declare @fecha datetime = CAST(GETDATE() AS DATE)
 			select @currUnirId = @currUnirId + 1
 		end
 		
-		insert into #temp_citas (id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, paciente)
-							select id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, dbo.fn_paciente_primer_nombre(id_paciente)
+		insert into #temp_citas (id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, paciente,telefono)
+							select id_cita, id_paciente, fecha_inicio, id_sucursal, sucursal, confirmada, fecha_confirmacion, tipo_confirmacion, dbo.fn_paciente_primer_nombre(id_paciente),telefono
 							from #temp_citas_unir
 							where borrar=0
 							
@@ -265,7 +271,43 @@ where
 --==========================================================================================================================================================================================
 INSERT INTO TABLA_NOTIFI_WHATSAPP
 SELECT * FROM #NUEVA_TABLA
+/*********************************************************************************************************
+POR ALGUN MOTIVO, LA TABLA_NOTIFI_WHATSAPP LLENA CITAS QUE NO EXISTEN EN LA TABLA CITA
+- PUEDE SER QUE DESPUES DE HABERCE CREADO LA CITA, LO CANCELEN Y CREEN UNA NUEVA CITA CON UN NUEVO HORARIO
+	Para evitar estos duplicados, se realizará una validacion en la tabla CITA, y las citas que no esten en la tabla CITA
+	serán eliminadas de la tabla TABLA_NOTIFI_WHATSAPP
+***********************************************************************************************************/
 
+drop table if exists #citas_duplicadas
+drop table if exists #TABLA_PACIENTES_CON_CITA_DUPLCIADA
+
+
+	--obtenenmos todas los pacientes con citas duplicadas
+SELECT id_paciente,count(*) num  INTO #TABLA_PACIENTES_CON_CITA_DUPLCIADA from TABLA_NOTIFI_WHATSAPP group by id_paciente having count(*)>1-- order by id_paciente desc
+	
+
+--OBTENGO TODAS LAS CITAS DUPLICADAS DE LOS PACIENTES Y LAS GUARDO EN UNA TABLA TEMPORAL #citas_duplicadas
+SELECT m.* into #citas_duplicadas FROM TABLA_NOTIFI_WHATSAPP m
+right join #TABLA_PACIENTES_CON_CITA_DUPLCIADA p on p.id_paciente=m.id_paciente
+
+select * from #citas_duplicadas
+--borramos de las citas que existen en la tabla cita
+--para dejar solo las que no existen y luego borrarlas de la tabla TABLA_NOTIFI_WHATSAPP
+delete from #citas_duplicadas where id_cita   in
+(
+	--estas son las sitas que si existen en la tabla cita
+	select c.id_cita from CITA C
+	inner join #citas_duplicadas cd on c.id_cita=cd.id_cita
+	and c.estatus <> 'B'
+)
+--FINALMENTE BORRO DE LA TABLA TABLA_NOTIFI_WHATSAPP , LAS CITAS QUE NO EXISTEN EN LA TABLA CITA
+delete from TABLA_NOTIFI_WHATSAPP where id_cita in
+(
+select id_cita from #citas_duplicadas
+)
+--------------------------------------------------------------------------------------------------------------
+--									FIN DEL BORRADO DE DUPLICADOS
+--------------------------------------------------------------------------------------------------------------
 	declare @TABLA_ENVIOS TypePacienteWhatsapp
 	--SELECT substring( convert(varchar(100),GETDATE(),21 ),1,16)
 
