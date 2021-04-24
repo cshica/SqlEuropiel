@@ -12,3 +12,6 @@ and cast(fecha_alta_registro as date)=cast(GETDATE() as date)
 --and bloque not like '%ESP%'
 --and id_usuario=36746
 order by fecha_alta_registro,id_usuario desc
+
+
+fn_formatear_telefono
