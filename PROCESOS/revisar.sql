@@ -14,4 +14,4 @@ and cast(fecha_alta_registro as date)=cast(GETDATE() as date)
 order by fecha_alta_registro,id_usuario desc
 
 
-fn_formatear_telefono
+--fn_formatear_telefono
