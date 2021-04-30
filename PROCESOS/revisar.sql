@@ -19,3 +19,6 @@ or  payload  not like '%Gracias por tu preferencia.%'
 --and bloque not like '%ESP%'
 --and id_usuario=19584
 order by fecha_alta_registro,id_usuario desc
+
+
+-- revisar p`rocedure mobile_confirmacion_cita_v2
