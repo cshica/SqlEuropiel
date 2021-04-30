@@ -1,4 +1,3 @@
-
 select * from rm_europiel_sinergia3.dbo.TABLA_NOTIFI_WHATSAPP 
 where 
 --cast(HORA_EJECUCION as time)='00:00:00.000'				and 
