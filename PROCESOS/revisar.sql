@@ -1,6 +1,6 @@
-select * from rm_europiel.dbo.TABLA_NOTIFI_WHATSAPP 
-where cast(HORA_EJECUCION as date)=cast(GETDATE() as date)
-
+select * from rm_europiel_guadalajara.dbo.TABLA_NOTIFI_WHATSAPP 
+where --cast(HORA_EJECUCION as date)=cast(GETDATE() as date)
+telefono like '%4423434013%'
 order by HORA_EJECUCION desc
 --select * from #tabla
 
@@ -22,3 +22,5 @@ order by fecha_alta_registro,id_usuario desc
 
 
 -- revisar p`rocedure mobile_confirmacion_cita_v2
+
+select * from paciente where ap_paterno='shica'

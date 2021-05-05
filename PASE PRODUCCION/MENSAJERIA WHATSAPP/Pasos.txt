@@ -21,7 +21,13 @@
             EXEC [NOMBRE_BD].dbo.NotificarWhastApp;
 
 Pasos: En cada BD ejecutar los siguientes scripts:
-    
+    - TEMPORAL_TABLE_ENVIOS
+    - TABLA_NOTIFI_WHATSAPP
+
+    - envia_whatsapp_cliente
+    - NotificarWhastApp
+
+    ***************************
     - TABLA_NOTIFI_WHATSAPP.sql
     - envia_whatsapp_cliente.sql
     - NotificarWhastApp.SQL
