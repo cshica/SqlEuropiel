@@ -1,0 +1,3 @@
+preocedures
+*  genera_mensajes_whatsapp_seguimiento_clientes
+*  procesa_paquete_activacion
