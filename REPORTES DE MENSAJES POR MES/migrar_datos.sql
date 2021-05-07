@@ -38,15 +38,9 @@ INSERT INTO dbo.Paso2 (
     AccountSid, ApiVersion, Body, DateCreated, DateSent, DateUpdated, Direction, ErrorCode, ErrorMessage, From_, MessagingServiceSid, NumMedia, NumSegments, Price, PriceUnit, Sid_, Status_, SubresourceUris, To_, Uri
 )
 SELECT
-<<<<<<< HEAD
     AccountSid, ApiVersion, Body, cast(left(DateCreated,19) as datetime) DateCreated, cast(left(DateSent,19) as datetime) DateSent, cast(left(DateUpdated,19) as datetime) DateUpdated, Direction, ErrorCode, ErrorMessage, From_, MessagingServiceSid, NumMedia, NumSegments, Price, PriceUnit, Sid_, Status_, SubresourceUris, To_, Uri
 FROM
     dbo.Paso1
-=======
-    AccountSid, ApiVersion, Body, CONVERT(datetime, DateCreated, 105) DateCreated, CONVERT(datetime, DateSent, 105) DateSent, CONVERT(datetime, DateUpdated, 105) DateUpdated, Direction, ErrorCode, ErrorMessage, From_, MessagingServiceSid, NumMedia, NumSegments, Price, PriceUnit, Sid_, Status_, SubresourceUris, To_, Uri
-FROM
-    dbo.Paso1_Abril
->>>>>>> 46fb7c8ec73f97ed962aa5e20389812a473496a9
 ;
 SELECT * FROM dbo.Paso2 (NOLOCK);
 
