@@ -1,0 +1,15 @@
+drop table if exists #telefonos
+create table #telefonos(numero varchar(50))
+insert into #telefonos
+select 'whatsapp:+14156045784' 	t union
+select 'whatsapp:+14156045985'	t union
+select 'whatsapp:+14157022948'	t union
+select 'whatsapp:+14157024072'	t union
+select 'whatsapp:+14159149730'	t union
+select 'whatsapp:+14159158429'	t union
+select 'whatsapp:+14159416424'	t union
+select 'whatsapp:+14159934412'	t union
+select 'whatsapp:+14159938354'	t union
+select 'whatsapp:+19794645556'	t  union
+select 'whatsapp:+5218120858069' t ; 
+select * from #telefonos
