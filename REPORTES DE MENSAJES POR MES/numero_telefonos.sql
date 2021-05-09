@@ -19,35 +19,35 @@ select  body, count(*) cantidad ,abs(sum(Price)) precio into #tabla_total from P
 where   From_ in( select numero from #telefonos) and
 --and Body like '%¡Bienvenid@ a Europiel%'
 -- and cast(DateCreated as date)=cast('2021-04-08' as date)
- body not like  '%¡Bienvenid@ a Europiel%' --1
- and body not LIKE '%Subdirector:%'--2
- and Body not like '%¡Hola! Te invitamos a agendar tu cita en nuestra App. Te recordamos que ya estamos abiertos en tu sucursal%'--3
- and Body not like '%Por favor activa  tus sesiones mediante la App respondiendo SI a este mensaje%'--4
- and body not like '%Por favor activa tus sesiones mediante la App respondiendo SI a este mensaje%'--5
- and Body not like '%hemos terminado tu tratamiento en área de%'--6
- and Body not like '%Es la segunda vez que agendas una cita en Europiel y no te presentas.%'--7
- and Body not like '%! Tu número de acceso de un solo uso es%'--8
- and Body not like '%! Bienvenida a Europiel. Tu número de acceso de un solo uso es%'--9
- and Body not like '%Para confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx%'--10
- and Body not like '%*Recuerda* que no puedes traer desodorante maquillaje cremas loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita.%'--11
- and body not like '%Recuerda que no puedes traer desodorante maquillaje cremas loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita%'--12
- and Body not like '%Gracias por tu preferencia. Hemos recibido  un pago por%'--13
- and Body not like '%ha tenido que cancelarse por causas de fuerza mayor. Te invitamos a reagendar en otra fecha.%'--14
- and Body not like 'Tu OTP es%'--15
- and Body not like '%! Bienvenido a Europiel. Tu número de acceso de un solo uso es%'--16
- and Body not like '%Mensaje automático, favor de no responder.%'--17
- and Body not like '%Gracias por tu confirmación, tu paquete se ha activado correctamente.%'--18
- and Body not like '%Gracias por tu confirmación, tu área ha sido activada correctamente.%'--19
- and Body not like '%Gracias por tu reporte, revisaremos tu caso lo antes posible.%'--20
- and Body not like '%Su cita ha sido confirmada!!%' --21
- and Body not like '%Su cita fue cancelada%' --22
- and Body not like '%El usuario *Octon* ha realizado *4* cambio(s) en los potenciales, quieres ver el detalle?%'--23
- and Body not like '%El usuario *Octon* ha realizado *8* cambio(s) en los potenciales, quieres ver el detalle?%'--24
- and Body not like '%ha cambiado el potencial de%'--25
- and Body not like '%Hey ya! Great to see you here. Btw, nothing is configured for this request path. Create a rule and start building a mock API.%'--26
+ body  like  '%¡Bienvenid@ a Europiel%' --1
+--  and body not LIKE '%Subdirector:%'--2
+--  and Body not like '%¡Hola! Te invitamos a agendar tu cita en nuestra App. Te recordamos que ya estamos abiertos en tu sucursal%'--3
+--  and Body not like '%Por favor activa  tus sesiones mediante la App respondiendo SI a este mensaje%'--4
+--  and body not like '%Por favor activa tus sesiones mediante la App respondiendo SI a este mensaje%'--5
+--  and Body not like '%hemos terminado tu tratamiento en área de%'--6
+--  and Body not like '%Es la segunda vez que agendas una cita en Europiel y no te presentas.%'--7
+--  and Body not like '%! Tu número de acceso de un solo uso es%'--8
+--  and Body not like '%! Bienvenida a Europiel. Tu número de acceso de un solo uso es%'--9
+--  and Body not like '%Para confirmar su cita pulse aquí http://citas.europiel.com.mx/ConfirmarCita.aspx%'--10
+--  and Body not like '%*Recuerda* que no puedes traer desodorante maquillaje cremas loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita.%'--11
+--  and body not like '%Recuerda que no puedes traer desodorante maquillaje cremas loción ni ninguna sustancia ni químico en la piel , así mismo debes venir rasurada con rastrillo el mismo día de tu cita%'--12
+--  and Body not like '%Gracias por tu preferencia. Hemos recibido  un pago por%'--13
+--  and Body not like '%ha tenido que cancelarse por causas de fuerza mayor. Te invitamos a reagendar en otra fecha.%'--14
+--  and Body not like 'Tu OTP es%'--15
+--  and Body not like '%! Bienvenido a Europiel. Tu número de acceso de un solo uso es%'--16
+--  and Body not like '%Mensaje automático, favor de no responder.%'--17
+--  and Body not like '%Gracias por tu confirmación, tu paquete se ha activado correctamente.%'--18
+--  and Body not like '%Gracias por tu confirmación, tu área ha sido activada correctamente.%'--19
+--  and Body not like '%Gracias por tu reporte, revisaremos tu caso lo antes posible.%'--20
+--  and Body not like '%Su cita ha sido confirmada!!%' --21
+--  and Body not like '%Su cita fue cancelada%' --22
+--  and Body not like '%El usuario *Octon* ha realizado *4* cambio(s) en los potenciales, quieres ver el detalle?%'--23
+--  and Body not like '%El usuario *Octon* ha realizado *8* cambio(s) en los potenciales, quieres ver el detalle?%'--24
+--  and Body not like '%ha cambiado el potencial de%'--25
+--  and Body not like '%Hey ya! Great to see you here. Btw, nothing is configured for this request path. Create a rule and start building a mock API.%'--26
 group by Body
 order by body asc
-select * from #tabla_total
+select sum(cantidad),sum(precio) from #tabla_total
 --select sum(precio) from #tabla_total
 
 select len('¡Hola! Te invitamos a agendar tu cita en nuestra App. Te recordamos que ya estamos abiertos en tu sucursal')
