@@ -20,7 +20,7 @@ where   From_ in( select numero from #telefonos) and
 --and Body like '%¡Bienvenid@ a Europiel%'
 -- and cast(DateCreated as date)=cast('2021-04-08' as date)
  body  like  '%¡Bienvenid@ a Europiel%' --1
---  and body not LIKE '%Subdirector:%'--2
+ and body not LIKE '%Subdirector:%'--2
 --  and Body not like '%¡Hola! Te invitamos a agendar tu cita en nuestra App. Te recordamos que ya estamos abiertos en tu sucursal%'--3
 --  and Body not like '%Por favor activa  tus sesiones mediante la App respondiendo SI a este mensaje%'--4
 --  and body not like '%Por favor activa tus sesiones mediante la App respondiendo SI a este mensaje%'--5
