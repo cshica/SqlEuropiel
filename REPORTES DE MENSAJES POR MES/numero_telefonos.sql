@@ -16,7 +16,7 @@ select * from #telefonos
 
 drop table if exists #tabla_total
 select  body, count(*) cantidad ,abs(sum(Price)) precio into #tabla_total from Paso2_abril  
-where   From_ in( select numero from #telefonos) and
+where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t) and
 --and Body like '%¡Bienvenid@ a Europiel%'
 -- and cast(DateCreated as date)=cast('2021-04-08' as date)
  body  like  '%¡Bienvenid@ a Europiel%' --1
@@ -84,4 +84,18 @@ insert into PLANTILLA_DETALLE(IdPlantilla,EnviosPorMes,Mes,Costo)
  ,(21,62,4,0),(22,5,4,0),(23,1,4,0.014)
  ,(24,1,4,0.014),(25,2,4,0),(26,1,4,0)
 
+
+
+declare @i int =1
+while (@i<=26)
+begin
+update  PLANTILLA_DETALLE  set EnviosPorMes=V.envios ,Costo =V.total
+from 
+(select
+  count(*) envios ,sum(Price) total   from Paso2_abril  WHERE From_ in(select w.NumeroWhatsapp from WhatsappEmisor w) 
+and Body like (select body from PLANTILLA where IdPlantilla=@i)
+) V
+where IdPlantilla=@i
+set @i=@i+1
+end
 

@@ -34,13 +34,13 @@ SELECT COUNT(*) FROM dbo.Paso2 (NOLOCK);
 TRUNCATE TABLE dbo.Paso2;
 SELECT COUNT(*) FROM dbo.Paso2 (NOLOCK);
 
-INSERT INTO dbo.Paso2 (
+INSERT INTO dbo.Paso2_marzo (
     AccountSid, ApiVersion, Body, DateCreated, DateSent, DateUpdated, Direction, ErrorCode, ErrorMessage, From_, MessagingServiceSid, NumMedia, NumSegments, Price, PriceUnit, Sid_, Status_, SubresourceUris, To_, Uri
 )
 SELECT
     AccountSid, ApiVersion, Body, cast(left(DateCreated,19) as datetime) DateCreated, cast(left(DateSent,19) as datetime) DateSent, cast(left(DateUpdated,19) as datetime) DateUpdated, Direction, ErrorCode, ErrorMessage, From_, MessagingServiceSid, NumMedia, NumSegments, Price, PriceUnit, Sid_, Status_, SubresourceUris, To_, Uri
 FROM
-    dbo.Paso1
+    dbo.Paso1_marzo
 ;
-SELECT * FROM dbo.Paso2 (NOLOCK);
+SELECT * FROM dbo.Paso2_marzo	 (NOLOCK);
 
