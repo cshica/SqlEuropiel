@@ -1,3 +1,9 @@
 preocedures
 *  genera_mensajes_whatsapp_seguimiento_clientes
 *  procesa_paquete_activacion
+
+
+/******************************************************************************
+--PLANTILLAS:
+    appointment_confirmation    : "Hola!, tu cita para depilarte se aproxima , el 30/Abr a las *4:30pm*. Te recomendamos estar 10 minutos antes, para evitar contratiempos. *Recuerda* que no puedes traer desodorante maquillaje cremas loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita."   
+    venta_nueva_pagos_2         : "¡Bienvenid@ a Europiel \"CHRISTIAN\"! Ten por seguro que eliminaremos el vello con la mejor tecnología y servicio.\n\nAcabas de adquirir un paquete para BARBA,BOZO,CEJA con un costo en promoción de 9,600.00. Se dio un anticipo de 0.00 y el resto se pagará de forma automática con cargos recurrentes a tu tarjeta terminación EFECTIVO de la siguiente manera:\n\n31 mayo 2,400,\n15 junio 2,400,\n30 junio 2,400,\n15 julio 2,400,\n-,\n-\n\n¿Deseas activar tus sesiones?"

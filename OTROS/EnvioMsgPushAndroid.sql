@@ -1,5 +1,5 @@
 DECLARE @MSG_ANDROID NVARCHAR(MAX)='"data":{"messageId":"1","title": "Actualiza tu APP", "posterUrl":"https://europiel-system-files.s3.amazonaws.com/AppEuropielAndroid/POP_UP_ActualizaApp.jpg", "url":"https://europiel.com.mx","linkUrl":"https://play.google.com/store/apps/details?id=com.virtekinnovations.europiel", "Category":"POPUP_INAPP"}}'
-DECLARE @VERSION NVARCHAR(10)
+DECLARE @VERSION NVARCHAR(10)='4.1.2'
 DROP TABLE IF EXISTS #TABLA_MSG
 create table #TABLA_MSG(
  id int identity(1,1),
@@ -28,14 +28,14 @@ join rm_europiel.dbo.sucursal s (nolock) on s.id_sucursal=p.id_sucursal
 join rm_europiel.dbo.bloque b (nolock) on b.id_bloque=s.id_bloque
 where c.bloque='MTY1'
 and s.callcenter_activo=1
-and isnull((SELECT TOP 1 os_version FROM rm_europiel..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  ('4.0.7')
+and isnull((SELECT TOP 1 os_version FROM rm_europiel..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  (@VERSION)
 --and version not is(4.0.7)
 --and (not exists (select 1 from notifier_mensajes n (nolock) where id_notifier=5 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque)
 --	or exists (select 1 from notifier_mensajes n (nolock) where id_notifier=5 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque
 --				and (n.ultimo_estatus like '%Exception message%' or n.ultimo_estatus like '%Error en el servidor remoto%'))
 --	)
---AND d.id_device='cbutLFsHtXM:APA91bHS9rnRcOusAbyprlcUnxyUz5xJYtCHSLLrAGz_J0AS8wbjTMUqmgfeDXYzlIB64bcZyB75EmmXBzAkmAsWY7EGwLIjv8T9KyFK7q8hOpdLxfBNQOmyViUs6wWfyLqvleVJUpuZ'--shica
---AND d.id_device='fvTQ_vmB5oo:APA91bHymHjbDwgJscptIfkIxLMiCy2-8ZWudBNlqTKz668yAfeBbys0U7pq3rMjphVNHTJM1Ok3hQoF_QCuCBcOQ4JCaeAXBKSABs2tJyiJMCh-TcjsUhpp9cxc0Mmgn5pglI4R3hrU'--leoncio
+--AND (d.id_device='cbutLFsHtXM:APA91bHS9rnRcOusAbyprlcUnxyUz5xJYtCHSLLrAGz_J0AS8wbjTMUqmgfeDXYzlIB64bcZyB75EmmXBzAkmAsWY7EGwLIjv8T9KyFK7q8hOpdLxfBNQOmyViUs6wWfyLqvleVJUpuZ'--shica
+--or d.id_device='fvTQ_vmB5oo:APA91bHymHjbDwgJscptIfkIxLMiCy2-8ZWudBNlqTKz668yAfeBbys0U7pq3rMjphVNHTJM1Ok3hQoF_QCuCBcOQ4JCaeAXBKSABs2tJyiJMCh-TcjsUhpp9cxc0Mmgn5pglI4R3hrU')--leoncio)
 
 --select * from #TABLA_MSG
 --==============================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
@@ -66,7 +66,7 @@ join rm_europiel_mty2.dbo.sucursal s (nolock) on s.id_sucursal=p.id_sucursal
 join rm_europiel_mty2.dbo.bloque b (nolock) on b.id_bloque=s.id_bloque
 where c.bloque='MTY2'
 and s.callcenter_activo=1
-and isnull((SELECT TOP 1 os_version FROM rm_europiel_mty2..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  ('4.0.7')
+and isnull((SELECT TOP 1 os_version FROM rm_europiel_mty2..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  (@VERSION)
 --and (not exists (select 1 from notifier_mensajes n (nolock) where id_notifier=5 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque)
 --	or exists (select 1 from notifier_mensajes n (nolock) where id_notifier=5 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque
 --				and (n.ultimo_estatus like '%Exception message%' or n.ultimo_estatus like '%Error en el servidor remoto%'))
@@ -86,7 +86,7 @@ join rm_europiel_guadalajara.dbo.sucursal s (nolock) on s.id_sucursal=p.id_sucur
 join rm_europiel_guadalajara.dbo.bloque b (nolock) on b.id_bloque=s.id_bloque
 where c.bloque='SIN1'
 and s.callcenter_activo=1
-and isnull((SELECT TOP 1 os_version FROM rm_europiel_guadalajara..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  ('4.0.7')
+and isnull((SELECT TOP 1 os_version FROM rm_europiel_guadalajara..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  (@VERSION)
 --and (not exists (select 1 from notifier_mensajes n (nolock) where id_notifier=5 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque)
 --	or exists (select 1 from notifier_mensajes n (nolock) where id_notifier=5 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque
 --				and (n.ultimo_estatus like '%Exception message%' or n.ultimo_estatus like '%Error en el servidor remoto%'))
@@ -106,7 +106,7 @@ join rm_europiel_juarez.dbo.sucursal s (nolock) on s.id_sucursal=p.id_sucursal
 join rm_europiel_juarez.dbo.bloque b (nolock) on b.id_bloque=s.id_bloque
 where c.bloque='SIN2'
 and s.callcenter_activo=1
-and isnull((SELECT TOP 1 os_version FROM rm_europiel_juarez..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  ('4.0.7')
+and isnull((SELECT TOP 1 os_version FROM rm_europiel_juarez..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  (@VERSION)
 --and (not exists (select 1 from notifier_mensajes n (nolock) where n.id_notifier=1 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque)
 --	or exists (select 1 from notifier_mensajes n (nolock) where n.id_notifier=1 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque
 --				and (n.ultimo_estatus like '%Exception message%' or n.ultimo_estatus like '%Error en el servidor remoto%'))
@@ -126,7 +126,7 @@ join rm_europiel_sinergia3.dbo.sucursal s (nolock) on s.id_sucursal=p.id_sucursa
 join rm_europiel_sinergia3.dbo.bloque b (nolock) on b.id_bloque=s.id_bloque
 where c.bloque='SIN3'
 and s.callcenter_activo=1
-and isnull((SELECT TOP 1 os_version FROM rm_europiel_sinergia3..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  ('4.0.7')
+and isnull((SELECT TOP 1 os_version FROM rm_europiel_sinergia3..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  (@VERSION)
 --and (not exists (select 1 from notifier_mensajes n (nolock) where n.id_notifier=1 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque)
 --	or exists (select 1 from notifier_mensajes n (nolock) where n.id_notifier=1 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque
 --				and (n.ultimo_estatus like '%Exception message%' or n.ultimo_estatus like '%Error en el servidor remoto%'))
@@ -146,21 +146,47 @@ join rm_europiel_espana.dbo.sucursal s (nolock) on s.id_sucursal=p.id_sucursal
 join rm_europiel_espana.dbo.bloque b (nolock) on b.id_bloque=s.id_bloque
 where c.bloque='ESP'
 and s.id_pais not in (2,4) --COLOMBIA
-and isnull((SELECT TOP 1 os_version FROM rm_europiel_espana..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  ('4.0.7')
+and isnull((SELECT TOP 1 os_version FROM rm_europiel_espana..mobile_user_login WITH(NOLOCK) WHERE id_usuario = p.id_paciente AND action = 'Login' ORDER BY id DESC),0)  not in  (@VERSION)
 --and (not exists (select 1 from notifier_mensajes n (nolock) where n.id_notifier=1 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque)
 --	or exists (select 1 from notifier_mensajes n (nolock) where n.id_notifier=1 and n.id_usuario=c.id_usuario and n.id_bloque=s.id_bloque
 --				and (n.ultimo_estatus like '%Exception message%' or n.ultimo_estatus like '%Error en el servidor remoto%'))
 --	) 
 
 --==============================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
-
-insert into notifier_mensajes (id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload)
-select id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload
+--ANTES DE MANDAR LOS MENSAJES, VERIFICAR QUE NO HAYA DUPLICADOS, ES DECIR QUE SOLO SE ENVIE UN MENSAJE POR CLIENTE
+--insert into notifier_mensajes (id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload)
+select *
 from #TABLA_MSG
 order by fecha_alta_paciente desc
+------------------------------------------------------
+DROP TABLE IF EXISTS #USERS_BORRAR
+DROP TABLE IF EXISTS #MSG_BORRAR
+DROP TABLE IF EXISTS #MSG_SALVAR
+SELECT TOP 1 * INTO #MSG_SALVAR FROM #TABLA_MSG 
+TRUNCATE TABLE #MSG_SALVAR
+select  id_usuario,COUNT(*) Cantidad into #USERS_BORRAR from #TABLA_MSG GROUP BY  id_usuario HAVING COUNT(*)>1 ORDER BY 2 DESC
 
-select id_usuario,COUNT(*) from #TABLA_MSG GROUP BY id_usuario HAVING COUNT(*)>1ORDER BY 2 DESC
-SELECT * FROM #TABLA_MSG WHERE id_usuario=32747 ORDER BY fecha_alta_paciente DESC
+DECLARE @LIMITE INT=(SELECT COUNT(*) FROM #USERS_BORRAR)
+DECLARE @CONT INT=1
+DECLARE @ID_USER INT
+WHILE @CONT<=@LIMITE
+BEGIN
+	SET @ID_USER =(SELECT TOP 1 id_usuario FROM #USERS_BORRAR)
+	INSERT INTO #MSG_SALVAR (id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload,fecha_alta_paciente)
+	SELECT TOP 1 id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload,fecha_alta_paciente FROM #TABLA_MSG WHERE id_usuario =@ID_USER ORDER BY fecha_alta_paciente DESC
+	SET @CONT=@CONT+1
+END
+
+SELECT * FROM #MSG_SALVAR
+
+
+SELECT * FROM #USERS_BORRAR
+
+
+select *
+from #TABLA_MSG WHERE id_usuario= 58043
+
+SELECT  * FROM #TABLA_MSG WHERE id_usuario=58043 ORDER BY fecha_alta_paciente DESC
 --18299	--ROBERTO
 --58043	--LEONCIO
 --58041 ANTHONY
