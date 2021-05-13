@@ -24,3 +24,26 @@ order by fecha_alta_registro,id_usuario desc
 -- revisar p`rocedure mobile_confirmacion_cita_v2
 
 select * from paciente where ap_paterno='shica'
+
+
+
+/***************************************************************************************/
+--INDICES
+CREATE NONCLUSTERED INDEX [IDX_12052021] ON [dbo].[TABLA_NOTIFI_WHATSAPP]
+(
+	[HORA_EJECUCION] ASC
+)
+INCLUDE([id_cita]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+
+
+
+
+CREATE NONCLUSTERED INDEX [IDX_12052021] ON [dbo].[cita_borrada]
+(
+	[id_cita] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+
