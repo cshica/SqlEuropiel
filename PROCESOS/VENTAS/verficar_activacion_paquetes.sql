@@ -39,8 +39,20 @@ select top 1 @IdPackage = IdPackage
 	order by id desc
 
 select IdPackage=isNull(@IdPackage,'')
-select * from rm_europiel_requerimientos.dbo.alta_activacion where id_referencia=@IdPackage  order by fecha_registro desc
-select * from rm_europiel.dbo.whatsapp_interfaz_altas where telefono=@to and id_alta = right(@IdPackage,5)
+select top 1 * from rm_europiel_requerimientos.dbo.alta_activacion where id_referencia=@IdPackage  order by fecha_registro desc
+select * from rm_europiel.dbo.whatsapp_interfaz_altas where id=3533
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJECUTAMOS PARA DESACTIVAR LA CONFIRMACION O NEGACION DEL ÁREA
 update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_proceso=null,estatus=null,respuesta_cliente=null where id=3533
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+go
+declare @IdPackage varchar(32)
+
+select IdPackage = 'MTY1' + 'WEB' + right('00000000000' + convert(varchar(12), id_alta),12), *
+from rm_europiel.dbo.whatsapp_interfaz_altas (nolock)
+where emisor = '+14157022948'
+and telefono = replace('+5218261065393','+521','+52')
+and estatus='Review' and respuesta_cliente= 'NO ES CORRECTO'
+and observaciones2 is null
+order by id desc
