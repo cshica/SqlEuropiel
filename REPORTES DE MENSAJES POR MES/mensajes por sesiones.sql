@@ -1,7 +1,7 @@
 --FEBERERO
 drop table if exists #tabla
-select  *  into #tabla from Paso2_Enero where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
-DECLARE @MES INT =1
+select  *  into #tabla from Paso2_Mayo where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
+DECLARE @MES INT =5
 --------------------------------------------------------------------------------------------------------------------------------
 -- MENSAJES ENVIADOS A NUMEROS DE MEXICO
 --------------------------------------------------------------------------------------------------------------------------------

@@ -169,24 +169,40 @@ select  id_usuario,COUNT(*) Cantidad into #USERS_BORRAR from #TABLA_MSG GROUP BY
 DECLARE @LIMITE INT=(SELECT COUNT(*) FROM #USERS_BORRAR)
 DECLARE @CONT INT=1
 DECLARE @ID_USER INT
-WHILE @CONT<=@LIMITE
+WHILE @LIMITE>0
 BEGIN
 	SET @ID_USER =(SELECT TOP 1 id_usuario FROM #USERS_BORRAR)
 	INSERT INTO #MSG_SALVAR (id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload,fecha_alta_paciente)
-	SELECT TOP 1 id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload,fecha_alta_paciente FROM #TABLA_MSG WHERE id_usuario =@ID_USER ORDER BY fecha_alta_paciente DESC
+	SELECT TOP 1 id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload,fecha_alta_paciente FROM #TABLA_MSG WHERE id_usuario =@ID_USER --ORDER BY fecha_alta_paciente DESC
+	DELETE FROM #USERS_BORRAR WHERE ID_USUARIO =@ID_USER
+
+	set @LIMITE=(SELECT COUNT(*) FROM #USERS_BORRAR)
 	SET @CONT=@CONT+1
+	print @CONT
+	if @CONT=10000
+		BREAK;
 END
 
-SELECT * FROM #MSG_SALVAR
+select id_usuario,COUNT(*) Cantidad from #TABLA_MSG GROUP BY  id_usuario HAVING COUNT(*)>1 ORDER BY 2 DESC
+
+drop table if exists #NUEVA_TABLA
+SELECT * INTO #NUEVA_TABLA FROM #TABLA_MSG
+delete from #NUEVA_TABLA WHERE id_usuario IN(SELECT id_usuario FROM #MSG_SALVAR)
+-- DROP TABLE IF EXISTS #TABLA_ENVIAR
+WITH TABLA_FINAL AS
+(
+	SELECT * FROM #NUEVA_TABLA
+	UNION
+	SELECT * FROM #MSG_SALVAR
+
+)
 
 
-SELECT * FROM #USERS_BORRAR
+SELECT id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload into #TABLA_ENVIAR FROM  TABLA_FINAL
+------------------------------------------------------------------------------------------
+insert into notifier_mensajes (id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload)
+SELECT * FROM #TABLA_ENVIAR
 
-
-select *
-from #TABLA_MSG WHERE id_usuario= 58043
-
-SELECT  * FROM #TABLA_MSG WHERE id_usuario=58043 ORDER BY fecha_alta_paciente DESC
 --18299	--ROBERTO
 --58043	--LEONCIO
 --58041 ANTHONY
