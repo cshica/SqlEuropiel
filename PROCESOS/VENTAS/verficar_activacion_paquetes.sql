@@ -54,5 +54,36 @@ from rm_europiel.dbo.whatsapp_interfaz_altas (nolock)
 where emisor = '+14157022948'
 and telefono = replace('+5218261065393','+521','+52')
 and estatus='Review' and respuesta_cliente= 'NO ES CORRECTO'
+and cast(fecha_interfaz as date)=cast(GETDATE()-1 as date)
 and observaciones2 is null
 order by id desc
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---PROCEDURES CREADOS
+-- BD : rm_europiel_requerimientos
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+GO
+DROP PROC IF EXISTS valida_alta_pendiente_respuesta_cliente;
+GO
+CREATE PROCEDURE valida_alta_pendiente_respuesta_cliente -- valida_alta_pendiente_respuesta_cliente '+14157022948','+528261065393'
+(
+	@emisor nvarchar(50)
+	,@telefono nvarchar(50)
+)
+AS
+BEGIN
+	-- select TOP 1 IdPackage = 'MTY1' + 'WEB' + right('00000000000' + convert(varchar(12), id_alta),12), id,telefono,emisor
+	-- from rm_europiel.dbo.whatsapp_interfaz_altas (nolock)
+	-- where emisor = @emisor
+	-- and telefono = replace(@telefono,'+521','+52')
+	-- and estatus='Review' and respuesta_cliente= 'NO ES CORRECTO'
+	-- and cast(fecha_interfaz as date)=cast(GETDATE() as date)
+	-- and observaciones2 is null
+	-- order by id desc
+
+	select *
+	from v_alta_pendiente_response (nolock)
+	where emisor = @emisor
+	and telefono = replace(@telefono,'+521','+52')
+
+END;
