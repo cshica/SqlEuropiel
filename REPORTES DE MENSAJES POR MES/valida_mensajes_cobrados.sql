@@ -21,6 +21,18 @@ where Mes=4
 
 order by 1 desc
 
+-----------------------------------------------------------------------------------------------------------
+--PARA VERIFICAR EL NUMERO DE TELEFONO CONSULTADO
+select 
+M.SESION,P.DateSent,P.Body,P.Price,P.To_,P.From_,P.Status_  
+from Paso2_abril P
+inner join MENSAJES_POR_SESIONES m on p.id=m.ID
+
+where 
+P.to_='whatsapp:+529212298501' 
+--or p.From_='whatsapp:+529997494694' 
+and m.Mes=4
+order by p.DateSent asc
 
 
 -----------------------------------------------------------------------------------------------------------
