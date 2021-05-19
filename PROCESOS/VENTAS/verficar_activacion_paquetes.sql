@@ -39,11 +39,13 @@ select top 1 @IdPackage = IdPackage
 	order by id desc
 
 select IdPackage=isNull(@IdPackage,'')
-select top 1 * from rm_europiel_requerimientos.dbo.alta_activacion where id_referencia=@IdPackage  order by fecha_registro desc
+select top 100* from rm_europiel_requerimientos.dbo.alta_activacion where id_referencia=@IdPackage  order by fecha_registro desc
+select top 1 * from rm_europiel_requerimientos.dbo.alta_activacion where id=3533
 select * from rm_europiel.dbo.whatsapp_interfaz_altas where id=3533
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJECUTAMOS PARA DESACTIVAR LA CONFIRMACION O NEGACION DEL ÁREA
 update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_proceso=null,estatus=null,respuesta_cliente=null where id=3533
+-- update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_interfaz=cast(GETDATE() as date)
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 go
@@ -53,8 +55,8 @@ select IdPackage = 'MTY1' + 'WEB' + right('00000000000' + convert(varchar(12), i
 from rm_europiel.dbo.whatsapp_interfaz_altas (nolock)
 where emisor = '+14157022948'
 and telefono = replace('+5218261065393','+521','+52')
-and estatus='Review' and respuesta_cliente= 'NO ES CORRECTO'
-and cast(fecha_interfaz as date)=cast(GETDATE()-1 as date)
+and estatus='Review' --and respuesta_cliente= 'NO ES CORRECTO'
+--and cast(fecha_interfaz as date)=cast(GETDATE() as date)
 and observaciones2 is null
 order by id desc
 
@@ -81,9 +83,47 @@ BEGIN
 	-- and observaciones2 is null
 	-- order by id desc
 
-	select *
+	select *,'Area' Tipo,1 IdTipo
 	from v_alta_pendiente_response (nolock)
 	where emisor = @emisor
 	and telefono = replace(@telefono,'+521','+52')
 
+END;
+GO
+DROP PROC IF EXISTS genera_respuesta_cliente_alta_area;
+GO
+CREATE PROCEDURE genera_respuesta_cliente_alta_area
+(
+
+	@IdPackage NVARCHAR(50)
+	,@respuesta nvarchar(1024)
+)
+AS
+BEGIN
+	declare @id int,
+            @bloque varchar(8)
+
+    select @id=id,
+            @bloque=bloque
+    from v_alta_pendiente_activacion
+    where IdPackage=@IdPackage
+
+    if @bloque = 'MTY1'
+        update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_proceso = getdate(),  respuesta_cliente=@respuesta where id=@id
+    else if @bloque = 'MTY2'
+        update rm_europiel_mty2.dbo.whatsapp_interfaz_altas set fecha_proceso = getdate(),   respuesta_cliente=@respuesta where id=@id
+    else if @bloque = 'SIN1'
+        update rm_europiel_guadalajara.dbo.whatsapp_interfaz_altas set fecha_proceso = getdate(),   respuesta_cliente=@respuesta where id=@id
+    else if @bloque = 'SIN2'
+        update rm_europiel_juarez.dbo.whatsapp_interfaz_altas set fecha_proceso = getdate(),   respuesta_cliente=@respuesta where id=@id
+    else if @bloque = 'SIN3'
+        update rm_europiel_sinergia3.dbo.whatsapp_interfaz_altas set fecha_proceso = getdate(),   respuesta_cliente=@respuesta where id=@id
+    else if @bloque = 'ESP'
+        update rm_europiel_espana.dbo.whatsapp_interfaz_altas set fecha_proceso = getdate(),   respuesta_cliente=@respuesta where id=@id
+    else if @bloque = 'USA1'
+        update rm_europiel_usa1.dbo.whatsapp_interfaz_altas set fecha_proceso = getdate(),   respuesta_cliente=@respuesta where id=@id
+    else if @bloque = 'DRP'
+        update rm_dermapro.dbo.whatsapp_interfaz_altas set fecha_proceso = getdate(),   respuesta_cliente=@respuesta where id=@id
+
+	
 END;
