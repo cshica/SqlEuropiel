@@ -14,8 +14,8 @@ select count( *),sum(Price)   from Paso2_marzo where   From_ in( select t.Numero
 select sum(isnull(EnviosPorMes,0)) envios ,sum(Costo) monto from PLANTILLA_DETALLE where Mes=4 union 
 select count( *),sum(Price)   from Paso2_abril where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
 --MAYO
-select sum(isnull(EnviosPorMes,0)) envios ,sum(Costo) monto from PLANTILLA_DETALLE where Mes=5 union 
-select count( *),sum(Price)   from Paso2_mAYO where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
+-- select sum(isnull(EnviosPorMes,0)) envios ,sum(Costo) monto from PLANTILLA_DETALLE where Mes=5 union 
+-- select count( *),sum(Price)   from Paso2_mAYO where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
 -----------------------------------------------------------------------------------------------------------------------
 -- MENSAJES POR GRUPOS
 -----------------------------------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ SELECT * FROM #FEBRERO
 SELECT * FROM #MARZO
 SELECT * FROM #ABRIL
 SELECT * FROM #MAYO
- -----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
 -- MENSAJES DE CONFIRMACION DE CITA
 -----------------------------------------------------------------------------------------------------------------------
 --Hola!, tu cita para depilarte se aproxima , el 1/May a las 11:25am. Te recomendamos estar 10 minutos antes, para evitar contratiempos. *Recuerda* que no puedes traer desodorante maquillaje cremas loción ni ninguna sustancia ni químico en la piel. Así mismo debes venir rasurado(a) con rastrillo el mismo día de tu cita.
@@ -127,3 +127,44 @@ SELECT * INTO #TABLA_RECORDATORIO FROM #TABLA WHERE id NOT IN(SELECT id FROM #TA
 SELECT * FROM #TABLA
 SELECT * FROM #TABLA_CONFIRMACION
 SELECT * FROM #TABLA_RECORDATORIO
+-----------------------------------------------------------------------------------------------------------------------
+-- MENSAJES POR SESIONES CREADAS AL MES
+-----------------------------------------------------------------------------------------------------------------------
+GO
+DROP TABLE  IF EXISTS #TABLA
+select  TO_,SESION,SUM(Price) Precio,COUNT(*) Mensajes,Mes INTO #TABLA
+from 
+MENSAJES_POR_SESIONES 
+--where Mes=4 
+--AND Price!=0
+group by TO_,SESION,MES
+order by 1,2,3 desc
+
+-- SELECT * FROM #TABLA where Mes=4 and to_ like '%2284039384%'
+-- order by 1,2,3 desc
+
+DROP TABLE IF EXISTS #TABLA_SESIONES
+SELECT TO_,Mes ,COUNT(TO_) SESIONES, 0.014 PRECIO INTO #TABLA_SESIONES FROM #TABLA GROUP BY TO_,MES
+
+DROP TABLE IF EXISTS #ENERO
+SELECT *,PRECIO*SESIONES TOTAL INTO #ENERO FROM #TABLA_SESIONES WHERE MES=1
+
+DROP TABLE IF EXISTS #FEBRERO
+SELECT *,PRECIO*SESIONES TOTAL INTO #FEBRERO FROM #TABLA_SESIONES WHERE MES=2
+
+DROP TABLE IF EXISTS #MARZO
+SELECT *,PRECIO*SESIONES TOTAL INTO #MARZO   FROM #TABLA_SESIONES WHERE MES=3
+
+DROP TABLE IF EXISTS #ABRIL
+SELECT *,PRECIO*SESIONES TOTAL INTO #ABRIL FROM #TABLA_SESIONES WHERE MES=4
+
+DROP TABLE IF EXISTS #MAYO
+SELECT *,PRECIO*SESIONES TOTAL INTO #MAYO FROM #TABLA_SESIONES WHERE MES=5
+
+SELECT 'ENERO'      MES,SUM(SESIONES) SESIONES ,SUM(TOTAL) SALDO FROM #ENERO UNION
+SELECT 'FEBRERO'    MES,SUM(SESIONES) SESIONES ,SUM(TOTAL) SALDO FROM #FEBRERO UNION
+SELECT 'MARZO'      MES,SUM(SESIONES) SESIONES ,SUM(TOTAL) SALDO FROM #MARZO UNION
+SELECT 'ABRIL'      MES,SUM(SESIONES) SESIONES ,SUM(TOTAL) SALDO FROM #ABRIL 
+
+
+
