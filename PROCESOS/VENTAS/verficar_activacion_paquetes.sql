@@ -41,7 +41,7 @@ select top 1 @IdPackage = IdPackage
 select IdPackage=isNull(@IdPackage,'')
 select top 100* from rm_europiel_requerimientos.dbo.alta_activacion where id_referencia=@IdPackage  order by fecha_registro desc
 select top 1 * from rm_europiel_requerimientos.dbo.alta_activacion where id=3533
-select * from rm_europiel.dbo.whatsapp_interfaz_altas where id=3533
+select * from rm_europiel.dbo.whatsapp_interfaz_altas where telefono='+528261065393'
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJECUTAMOS PARA DESACTIVAR LA CONFIRMACION O NEGACION DEL ÁREA
 update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_proceso=null,estatus=null,respuesta_cliente=null where id=3533

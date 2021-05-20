@@ -1,5 +1,5 @@
 DECLARE @MSG_ANDROID NVARCHAR(MAX)='"data":{"messageId":"1","title": "Actualiza tu APP", "posterUrl":"https://europiel-system-files.s3.amazonaws.com/AppEuropielAndroid/POP_UP_ActualizaApp.jpg", "url":"https://europiel.com.mx","linkUrl":"https://play.google.com/store/apps/details?id=com.virtekinnovations.europiel", "Category":"POPUP_INAPP"}}'
-DECLARE @VERSION NVARCHAR(10)='4.1.2'
+DECLARE @VERSION NVARCHAR(10)='4.1.4'
 DROP TABLE IF EXISTS #TABLA_MSG
 create table #TABLA_MSG(
  id int identity(1,1),
@@ -178,9 +178,9 @@ BEGIN
 
 	set @LIMITE=(SELECT COUNT(*) FROM #USERS_BORRAR)
 	SET @CONT=@CONT+1
-	print @CONT
-	if @CONT=10000
-		BREAK;
+	print concat('Contador: ',@CONT,' Limite: ',@LIMITE)
+	-- if @CONT=10000
+	-- 	BREAK;
 END
 
 select id_usuario,COUNT(*) Cantidad from #TABLA_MSG GROUP BY  id_usuario HAVING COUNT(*)>1 ORDER BY 2 DESC
@@ -188,7 +188,8 @@ select id_usuario,COUNT(*) Cantidad from #TABLA_MSG GROUP BY  id_usuario HAVING 
 drop table if exists #NUEVA_TABLA
 SELECT * INTO #NUEVA_TABLA FROM #TABLA_MSG
 delete from #NUEVA_TABLA WHERE id_usuario IN(SELECT id_usuario FROM #MSG_SALVAR)
--- DROP TABLE IF EXISTS #TABLA_ENVIAR
+ DROP TABLE IF EXISTS #TABLA_ENVIAR
+ go
 WITH TABLA_FINAL AS
 (
 	SELECT * FROM #NUEVA_TABLA
@@ -198,10 +199,14 @@ WITH TABLA_FINAL AS
 )
 
 
+
 SELECT id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload into #TABLA_ENVIAR FROM  TABLA_FINAL
 ------------------------------------------------------------------------------------------
-insert into notifier_mensajes (id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload)
+insert into rm_europiel_requerimientos.dbo.notifier_mensajes (id_notifier,id_usuario,id_bloque,bloque,device_token,mobile_os,payload)
 SELECT * FROM #TABLA_ENVIAR
+
+
+--SELECT id_usuario,bloque, count(*) FROM #TABLA_ENVIAR GROUP BY id_usuario,bloque having count(*)>1
 
 --18299	--ROBERTO
 --58043	--LEONCIO
