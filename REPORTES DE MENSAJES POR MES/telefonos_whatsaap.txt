@@ -13,3 +13,74 @@ select 'whatsapp:+14159938354'	t union
 select 'whatsapp:+19794645556'	t  union
 select 'whatsapp:+5218120858069' t ; 
 select * from #telefonos
+
+
+------------------------------------------------------------------------------------------------------------------
+select 
+M.SESION,P.DateSent,P.Body,P.Price,P.To_,P.From_,P.Status_  
+from Paso2_abril P
+inner join MENSAJES_POR_SESIONES m on p.id=m.ID
+where 
+--P.Price<0
+ p.To_='whatsapp:+5216143629129' 
+and m.Mes=4
+order by p.DateSent asc
+
+
+select * from Paso2_abril where To_='whatsapp:+5216143629129' or From_='whatsapp:+5216143629129'
+------------------------------------------------------------------------------------------------------------------
+go
+declare @telefono nvarchar(100)='whatsapp:+5212284039384'
+
+select 
+M.SESION,P.DateSent,P.Body,P.Price,P.To_,P.From_,P.Status_  
+from Paso2_marzo P
+inner join MENSAJES_POR_SESIONES m on p.id=m.ID
+where 
+--P.Price<0
+ replace(p.To_,'+521','+52')=replace(@telefono,'+521','+52') 
+and m.Mes=3
+order by p.DateSent asc
+
+
+select id, DateSent,Body,Price,To_,From_,Direction,Status_ from Paso2_marzo where 
+  replace(To_,'+521','+52')=replace(@telefono,'+521','+52') 
+or replace(From_,'+521','+52')=replace(@telefono,'+521','+52')
+order by DateSent
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+declare @telefono nvarchar(100)='whatsapp:+5212284039384'
+select id, DateSent,Body,Price,To_,From_,Direction,Status_ from Paso2_abril where month(DateSent) =3
+--and   From_  in( select t.NumeroWhatsapp from WhatsappEmisor t)
+and replace(To_,'+521','+52')=replace(@telefono,'+521','+52') 
+or replace(From_,'+521','+52')=replace(@telefono,'+521','+52')
+order by  To_,DateSent, Direction asc
+
+select id, DateSent,Body,Price,To_,From_,Direction,Status_ from Paso2_marzo where day(DateSent) =31 
+--and   From_  in( select t.NumeroWhatsapp from WhatsappEmisor t)
+and replace(To_,'+521','+52')=replace(@telefono,'+521','+52') 
+or replace(From_,'+521','+52')=replace(@telefono,'+521','+52')
+order by  To_,DateSent, Direction asc
