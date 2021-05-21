@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS #TABLA
 select  TO_,SESION,SUM(Price) Precio,COUNT(*) Mensajes INTO #TABLA
 from 
 MENSAJES_POR_SESIONES 
-where Mes=4 --------------CAMBIAR ACA EL MES
+where Mes=3 --------------CAMBIAR ACA EL MES
 
 group by TO_,SESION 
 order by 1,2,3 desc
@@ -27,7 +27,7 @@ order by 1,2,3 desc
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 DECLARE @SESION  INT
 DECLARE @TELEFONO VARCHAR(40)
-declare @MES INT =4 -----------ESTABLECER EL MES
+declare @MES INT =3 -----------ESTABLECER EL MES
 DECLARE @CONTADOR INT =0
 DECLARE @NUM_EJEC INT =
 	(
