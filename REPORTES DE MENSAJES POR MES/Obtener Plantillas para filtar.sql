@@ -1,7 +1,7 @@
 -- PASO 1
 -- Guardamos en una tabla temporal, los vmensajes que fueron enviados por los numeros telefonicos
 drop table if exists #tabla
-select  *  into #tabla from Paso2_Mayo where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
+select  *  into #tabla from Paso2_abril where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
 --------------------------------------------------------------------------------------------------------------------------------------------
 -- PASO 2
 -- Obenemos todos los mensajes para elegir uno por uno los FILTROS a buscar
@@ -34,5 +34,5 @@ select @ENVIOS
 -- Insertamos en la tabla PLANTILLA_DETALLE, la cantidad de envios y la suma de costo que hemos obtenido 
 -- anteriormente
 	SET @id=(SELECT MAX(IdPlantilla) FROM PLANTILLA)
-	INSERT INTO PLANTILLA_DETALLE (IdPlantilla,EnviosPorMes,Mes,Costo) VALUES(@ID,@ENVIOS,5,@COSTO)-- el valor 4 indica que es el mes 4 (abril)
+	INSERT INTO PLANTILLA_DETALLE (IdPlantilla,EnviosPorMes,Mes,Costo) VALUES(@ID,@ENVIOS,4,@COSTO)-- el valor 4 indica que es el mes 4 (abril)
 -- VOLVER AL PASO 2, hasta que la tabla temporal #tabla, quede vacial

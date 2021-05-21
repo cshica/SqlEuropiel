@@ -1,11 +1,11 @@
 drop table if exists #tabla
-select  *  into #tabla from Paso2_Mayo where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
---SELECT Body FROM #tabla where Body like '%fue cancelada por error, por favor haz caso omiso a dicha cancelación y acude a tu cita como estaba originalmente programado, te esperamos para atenderte lo mejor posible!.' ORDER BY Body ASC
+select  *  into #tabla from Paso2_abril where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
+--SELECT Body FROM #tabla where Body like 'Hola!, tu cita para depilarte se aproxima%' ORDER BY Body ASC
 --Tu OTP es 00184413
 --------------------------------------------------------------------------------------------------------------------------------------------
 declare @i int=1
 declare @id int =1
-DECLARE @MES INT=5
+DECLARE @MES INT=4
 
 	declare @filtro nvarchar(max)
 	
@@ -15,7 +15,7 @@ DECLARE @MES INT=5
 while (@i<@limite)
 begin
     print @i
-    if not exists(select * from PLANTILLA_DETALLE where IdPlantilla=@i AND MES=@MES)
+    --if not exists(select * from PLANTILLA_DETALLE where IdPlantilla=@i AND MES=@MES)
     begin
         set @filtro =(select Body from PLANTILLA where IdPlantilla=@i)
 
@@ -33,7 +33,14 @@ begin
         delete from #tabla where Body like @filtro
         --INSERT INTO PLANTILLA (Body) VALUES (@filtro)
         SET @id=@i
-        INSERT INTO PLANTILLA_DETALLE (IdPlantilla,EnviosPorMes,Mes,Costo) VALUES(@ID,isnull(@ENVIOS,0),@MES,isnull(@COSTO,0))
+        if exists(select * from PLANTILLA_DETALLE where IdPlantilla=@id AND Mes=@MES)
+        BEGIN   
+            UPDATE PLANTILLA_DETALLE SET EnviosPorMes=isnull(@ENVIOS,0), Costo=isnull(@COSTO,0) WHERE Mes=@MES
+        END
+        ELSE
+        BEGIN
+            INSERT INTO PLANTILLA_DETALLE (IdPlantilla,EnviosPorMes,Mes,Costo) VALUES(@ID,isnull(@ENVIOS,0),@MES,isnull(@COSTO,0))
+        END
     end
 	set @i=@i+1
 end
