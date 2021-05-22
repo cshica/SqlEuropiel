@@ -1,0 +1,23 @@
+procesa_alta_activacion
+genera_respuesta_cliente_alta_area
+valida_alta_pendiente_activacion
+
+*****************************************************************************
+  select  id,
+             bloque
+    from v_alta_pendiente_activacion (nolock)
+    where IdPackage='MTY1WEB000000054726'
+
+
+select fecha_proceso,estatus,respuesta_cliente,* from rm_europiel.dbo.whatsapp_interfaz_altas where id=3705
+select * from alta_activacion  where id_referencia='MTY1WEB000000054726' 
+
+delete from alta_activacion where id_referencia='MTY1WEB000000054726' 
+update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_proceso = null, estatus=null, respuesta_cliente=null where id=3705
+***********************************************************
+
+buscar expediente
+
+
+
+
