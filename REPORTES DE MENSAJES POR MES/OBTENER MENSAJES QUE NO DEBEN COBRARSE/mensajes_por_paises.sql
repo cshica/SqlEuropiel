@@ -1,0 +1,49 @@
+DROP TABLE IF EXISTS #TABLA1
+SELECT P.* ,CONCAT('+',SUBSTRING(P.To_,11,3)) COD_PAIS,
+(SELECT TOP 1 C.PAIS FROM CODIGOS_PAISES C WHERE C.CODIGO =  SUBSTRING(P.To_,11,2)) PAIS
+INTO #TABLA1
+FROM Paso2_abril P
+WHERE TO_ LIKE 'whatsapp%'
+and From_ in(select NumeroWhatsapp from WhatsappEmisor)
+
+SELECT  SUBSTRING(P.To_,1,3) COD_PAIS,
+(SELECT TOP 1 C.PAIS FROM CODIGOS_PAISES C WHERE C.CODIGO =  SUBSTRING(P.To_,2,2)) PAIS,P.To_,P.* 
+FROM Paso2_abril P
+WHERE TO_ NOT LIKE 'whatsapp%'
+
+--SELECT 
+--CASE 
+--WHEN PAIS IS  NULL THEN 
+	
+--	(SELECT TOP 1 C.PAIS FROM CODIGOS_PAISES C WHERE C.CODIGO =  SUBSTRING(T.COD_PAIS,1,4) )
+--ELSE T.PAIS 	
+--END PAIS,
+--T.COD_PAIS,--T.PAIS,
+--* FROM #TABLA1 T
+
+DROP TABLE IF EXISTS #TABLA2
+SELECT T.AccountSid,T.ApiVersion,T.Body,T.DateCreated,T.DateSent,T.DateUpdated,T.Direction,T.ErrorCode,T.ErrorMessage,T.From_,T.MessagingServiceSid,
+T.NumMedia,T.NumSegments,T.Price,T.PriceUnit,T.Sid_,T.Status_,T.SubresourceUris,T.To_,T.Uri,T.Id,--T.COD_PAIS,
+CASE WHEN PAIS IS NOT NULL THEN
+	SUBSTRING(T.COD_PAIS,1,3) 
+	ELSE
+	T.COD_PAIS
+END COD_PAIS,
+CASE 
+WHEN PAIS IS  NULL THEN 
+	
+	(SELECT TOP 1 C.PAIS FROM CODIGOS_PAISES C WHERE C.CODIGO =  SUBSTRING(T.COD_PAIS,1,4) )
+ELSE T.PAIS 	
+END PAIS
+INTO #TABLA2
+ FROM #TABLA1 T
+
+ SELECT   isnull(PAIS,'Otros')Pais, COUNT(*) Mensajes,abs(SUM(Price)) Precio FROM #TABLA2 where Status_ not in ('failed','undelivered') group by   PAIS order by 2 desc
+ SELECT COUNT(*),SUM(Price) FROM #TABLA2 WHERE PAIS!= 'México'
+
+ select COD_PAIS,PAIS,* from #TABLA2
+
+ select * from #TABLA1
+
+
+ 

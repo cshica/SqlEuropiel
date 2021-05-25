@@ -1,6 +1,6 @@
 --FEBERERO
 drop table if exists #tabla
-select  *  into #tabla from Paso2_abril where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
+select  *  into #tabla from Paso2_abril where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t) and Status_ not in ('failed','undelivered')
 DECLARE @MES INT =4
 --------------------------------------------------------------------------------------------------------------------------------
 -- MENSAJES ENVIADOS A NUMEROS DE MEXICO
