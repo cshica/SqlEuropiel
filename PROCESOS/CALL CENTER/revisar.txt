@@ -1,0 +1,2 @@
+inserta_notificaciones_reestructuracion_cobranza--PARA OBTENER VALORES EN EL controler CallCenterController
+genera_notifier_mensajes_recuperacion_cobranza --para el REDIS

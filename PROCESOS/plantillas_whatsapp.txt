@@ -1,19 +1,7 @@
-preocedures
-*  genera_mensajes_whatsapp_seguimiento_clientes
-*  procesa_paquete_activacion
 
-
-/******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
---PLANTILLAS:
-    appointment_confirmation    : " "   
     venta_nueva_pagos_2         : "¡Bienvenid@ a Europiel \"CHRISTIAN\"! Ten por seguro que eliminaremos el vello con la mejor tecnología y servicio.\n\nAcabas de adquirir un paquete para BARBA,BOZO,CEJA con un costo en promoción de 9,600.00. Se dio un anticipo de 0.00 y el resto se pagará de forma automática con cargos recurrentes a tu tarjeta terminación EFECTIVO de la siguiente manera:\n\n31 mayo 2,400,\n15 junio 2,400,\n30 junio 2,400,\n15 julio 2,400,\n-,\n-\n\n¿Deseas activar tus sesiones?"
     venta_nueva_liquidada       : "¡Bienvenid@ a Europiel \"CHRISTIAN\"! Ten por seguro que eliminaremos el vello con la mejor tecnología y servicio.\n\nAcabas de adquirir un paquete para BARBA,BOZO,CEJA con un costo en promoción de 9,600.00. Tu paquete ha sido liquidado en su totalidad \u00a1Felicidades!\n\n¿Deseas activar tus sesiones?"
     reventa_liquidada           : "CHRISTIAN, Gracias por tu preferencia, acabas de agregar \u00e1reas a tu depilaci\u00f3n l\u00e1ser, las cuales son 99999 con un costo total en descuento por ya ser cliente de 444444. Tu paquete ha sido liquidado en su totalidad \u00a1Felicidades! \n\n¿Deseas activar tus sesiones?"
     reventa_pagos               : "CHRISTIAN, Gracias por tu preferencia, Gracias por tu preferencia, acabas de agregar áreas a tu depilación láser, las cuales son *2222222* con un costo total en descuento por ya ser cliente de *3333333*, Se dio un anticipo de *444444* y el resto se pagar\u00e1 de forma autom\u00e1tica con cargos recurrentes a tu tarjeta terminaci\u00f3n *555555* de la siguiente manera:\n\n*66666*\n\n¿Deseas activar tus sesiones?"
-/******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
-
-preocedures
-*  procesa_whatsapp_confirmacion_alta
---PLANTILLAS:
     alta_area_botones           : "Buen d\u00EDa CHRISTIAN, hemos terminado tu tratamiento en \u00E1rea de BARBA firmando alta satisfactoria y en el cual se te entregaron dos certificados de retoque para 3 y 6 meses (Agendar desde recepci\u00F3n). Agradecemos tu confianza al tomar el tratamiento de depilaci\u00F3n l\u00E1ser con nosotros.\n\nEUROPIEL Laser Center\n\n\u00BFEs correcta esta informaci\u00F3n?"
-    
+    reestructuracion_botones    : "¡Hola CHRISTIAN!, esperamos te encuentres muy bien, nos contactamos de *EUROPIEL* ya que analizando tu cuenta, vemos la opción de un mejor plan de pagos para ti de $800 el cual pudiéramos desglosar en 8 quincenas de $100 para tu mayor comodidad.\n\n¿Aceptas esta propuesta?"
