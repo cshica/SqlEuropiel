@@ -180,4 +180,19 @@ insert into notifier_mensajes values (13,0,2,'MTY2',@telefono_destino,null,'{
   end
 
 
-select * from #tabla
+select top 1 * from #tabla
+
+select * from PACIENTE where ap_paterno='pruebas' --59966
+
+delete from #tabla where telefono !='+528116086379'
+update #tabla set id_usuario=59966, emisor='+14159416424',telefono='+528261065393',payload='{		"type":"whatsapp",		"device":"+528261065393",		"emitter":"+14159416424",		"environment":"PROD",		"token": "kqvXKz5BW9axFTwpVetPNEnCmcy2fRMdg3HL7DhsAu64G8jUQJ",		"payload":"¡Hola CESAR!, esperamos te encuentres muy bien, nos contactamos de *EUROPIEL* ya que analizando tu cuenta, vemos la opción de un mejor plan de pagos para ti de *3,420.00* el cual pudiéramos desglosar en *6* quincenas de *570.00* para tu mayor comodidad.\n\n¿Aceptas esta propuesta?"}' where telefono='+528261065393'
+
+insert into rm_europiel_requerimientos.dbo.notifier_mensajes (id_notifier, id_usuario, id_bloque, bloque, telefono, device_token, payload, fecha_envio, ultimo_estatus, 
+																	fecha_ultimo_estatus, mobile_os, id_referencia, fecha_alta_registro, clave_acceso, emisor, nombre_cliente)
+select id_notifier, id_usuario, id_bloque, bloque, telefono, device_token, payload, fecha_envio, ultimo_estatus, 
+																	fecha_ultimo_estatus, mobile_os, id_referencia, fecha_alta_registro, clave_acceso, emisor, nombre_cliente from #tabla
+
+
+																	
+
+
