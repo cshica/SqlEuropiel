@@ -1,12 +1,11 @@
 
 DROP TABLE IF EXISTS #MES
-select F.id,F.From_,F.To_,F.DateCreated INTO #MES from Paso2_marzo F where
+select F.id,F.From_,replace(F.To_,'+521','+52') To_,F.DateCreated INTO #MES from Paso2_abril F where
 F.From_ IN(SELECT NumeroWhatsapp FROM WhatsappEmisor)
 AND  F.Status_ not in ('failed','undelivered')
 	AND F.To_ LIKE 'whatsapp:+52%'
 
 
-	--SELECT * FROM #MES
 --------------------------------------------------------------------
 DROP TABLE IF EXISTS #TELEFONOS_EVALUAR
 SELECT DISTINCT To_ INTO #TELEFONOS_EVALUAR FROM #MES
@@ -77,9 +76,11 @@ END
 CLOSE CUR
 DEALLOCATE CUR
 
+--drop table if exists SESION_POR_MES
+--CREATE TABLE SESION_POR_MES (id int,From_ nvarchar(50),To_ nvarchar(50),DateCreated datetime,Mes int)
 
 INSERT INTO SESION_POR_MES
-select *, 3 MES from #SESIONES 
+select *, 4 MES from #SESIONES 
 
 ---------------------------------------------------------------------------------------------------------------
 
