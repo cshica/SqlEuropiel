@@ -6,7 +6,7 @@ AND  F.Status_ not in ('failed','undelivered')
 	AND F.To_ LIKE 'whatsapp:+52%'
 
 
-	SELECT * FROM #MES
+	--SELECT * FROM #MES
 --------------------------------------------------------------------
 DROP TABLE IF EXISTS #TELEFONOS_EVALUAR
 SELECT DISTINCT To_ INTO #TELEFONOS_EVALUAR FROM #MES
@@ -26,34 +26,50 @@ DECLARE CUR CURSOR FOR
 --------------------------------------------------------------------------------------------------------
 	PRINT CONCAT('Telefono:',@TO,' # ',@cont1,'/',@NUM_EVALUACIONES)
 	PRINT '------------------------------------------------------------'
-	DROP TABLE IF EXISTS #SESION_MES
-	SELECT * INTO #SESION_MES FROM #MES
+	DROP TABLE IF EXISTS #SESION_TEMP
+	SELECT * INTO #SESION_TEMP FROM #MES
 	WHERE To_=@TO
 	AND From_ IN(SELECT NumeroWhatsapp FROM WhatsappEmisor)
+	/***********************************************************/
+	DECLARE @EMISOR NVARCHAR(50)
+	DECLARE CUR1 CURSOR FOR 
+		SELECT DISTINCT From_ FROM #SESION_TEMP
+		OPEN CUR1
+		FETCH NEXT FROM CUR1 INTO @EMISOR
+		WHILE @@FETCH_STATUS=0
+		BEGIN
+		DROP TABLE IF EXISTS #SESION_TEMP_1
+		SELECT * INTO #SESION_TEMP_1 FROM #SESION_TEMP WHERE From_=@EMISOR
+	/***********************************************************/	
+			WHILE (SELECT COUNT(*) FROM #SESION_TEMP_1)>0
+			BEGIN
+				DECLARE @FECHA_INI DATETIME
+				DECLARE @FECHA_FIN DATETIME
 
-	WHILE (SELECT COUNT(*) FROM #SESION_MES)>0
-	BEGIN
-		DECLARE @FECHA_INI DATETIME
-		DECLARE @FECHA_FIN DATETIME
-
-		SET @FECHA_INI=(SELECT MIN(DateCreated) FROM #SESION_MES)
-		SET @FECHA_FIN=DATEADD(HOUR,24,@FECHA_INI)
-		--SELECT * FROM #SESION_MES ORDER BY  DateCreated ASC
-		--SELECT @FECHA_INI,@FECHA_FIN
+				SET @FECHA_INI=(SELECT MIN(DateCreated) FROM #SESION_TEMP_1)
+				SET @FECHA_FIN=DATEADD(HOUR,24,@FECHA_INI)
+				--SELECT * FROM #SESION_TEMP ORDER BY  DateCreated ASC
+				--SELECT @FECHA_INI,@FECHA_FIN
 
 
-		--SELECT * FROM #SESION_MES WHERE DateCreated BETWEEN @FECHA_INI AND @FECHA_FIN
-		--SELECT top 1 id FROM #SESION_MES WHERE DateCreated BETWEEN @FECHA_INI AND @FECHA_FIN 
-		--order by DateCreated asc
+				--SELECT * FROM #SESION_TEMP WHERE DateCreated BETWEEN @FECHA_INI AND @FECHA_FIN
+				--SELECT top 1 id FROM #SESION_TEMP WHERE DateCreated BETWEEN @FECHA_INI AND @FECHA_FIN 
+				--order by DateCreated asc
 
-		insert into #SESIONES
-		select * FROM #SESION_MES WHERE ID  =(SELECT top 1 id FROM #SESION_MES WHERE DateCreated BETWEEN @FECHA_INI AND @FECHA_FIN 
-		order by DateCreated asc)
+				insert into #SESIONES
+				select * FROM #SESION_TEMP_1 WHERE ID  =(SELECT top 1 id FROM #SESION_TEMP_1 WHERE DateCreated BETWEEN @FECHA_INI AND @FECHA_FIN 
+				order by DateCreated asc)
 
-		--select * from #SESIONES
-		delete from #SESION_MES WHERE DateCreated BETWEEN @FECHA_INI AND @FECHA_FIN 
+				--select * from #SESIONES
+				delete from #SESION_TEMP_1 WHERE DateCreated BETWEEN @FECHA_INI AND @FECHA_FIN 
 
-	END
+			END
+	/***********************************************************/
+		FETCH NEXT FROM CUR1 INTO @EMISOR
+		END
+		CLOSE CUR1
+		DEALLOCATE CUR1
+	/***********************************************************/
 ---------------------------------------------------------------------------------------------------------
 	SET @cont1=	@cont1+1
 	FETCH NEXT FROM CUR INTO @TO
@@ -61,5 +77,6 @@ END
 CLOSE CUR
 DEALLOCATE CUR
 
-INSERT INTO SESIONES
+
+INSERT INTO SESION_POR_MES
 select *, 3 MES from #SESIONES 
