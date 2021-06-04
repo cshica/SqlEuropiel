@@ -80,3 +80,12 @@ DEALLOCATE CUR
 
 INSERT INTO SESION_POR_MES
 select *, 3 MES from #SESIONES 
+
+---------------------------------------------------------------------------------------------------------------
+
+-- select * from SESIONES where mes =2 AND To_='whatsapp:+526241501428'
+-- SELECT From_,To_,DateCreated,Status_ FROM Paso2_Febrero WHERE To_='whatsapp:+526241501428' ORDER BY DateCreated  ASC
+
+-- SELECT * FROM SESION_FEBRERO (NOLOCK) WHERE TO_='whatsapp:+526241501428' ORDER BY DATECREATED ASC
+-- SELECT From_,To_,DateCreated,Status_ FROM Paso2_Febrero WHERE To_='whatsapp:+526241501428' ORDER BY DateCreated  ASC
+
