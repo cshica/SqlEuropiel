@@ -78,5 +78,5 @@ BEGIN
     ---------------------------------------------------------------------------------------------------------------------------------
 END
 
-select * from MENSAJES_POR_SESIONES
+select * from MENSAJES_POR_SESIONES where TO_ in('whatsapp:+524737388921') and Mes=2 order by DateSent,SESION desc
 
