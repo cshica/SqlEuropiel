@@ -120,7 +120,7 @@ DROP TABLE IF EXISTS #JUNIO
 select PD.*,P.Body INTO #JUNIO from PLANTILLA_DETALLE PD
 INNER JOIN PLANTILLA P ON P.IdPlantilla= PD.IdPlantilla
 INNER JOIN GRUPO G ON G.Idgrupo=P.IdGrupo
-where Mes=6 AND G.IdGrupo=8
+where Mes=6 AND G.IdGrupo=5
 order by G.IdGrupo
 
 
