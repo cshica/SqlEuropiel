@@ -1,7 +1,7 @@
 
 DROP TABLE IF EXISTS dbo.Paso2_Mayo;
 GO
-CREATE TABLE dbo.Paso2_Mayo (
+CREATE TABLE dbo.Paso2_Junio (
 	AccountSid char(34) NULL,
 	ApiVersion char(10) NULL,
 	Body nvarchar(max) NULL,
