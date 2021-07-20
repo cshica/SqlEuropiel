@@ -1,6 +1,13 @@
 -----------------------------------------------------------------------------------------------------------------------
 -- ENVIOS DE MENSAJES POR MES
 -----------------------------------------------------------------------------------------------------------------------
+--NOVIEMBRE 2020
+select sum(isnull(EnviosPorMes,0)) envios ,sum(Costo) monto from PLANTILLA_DETALLE where Mes=-11 union 
+select count( *),sum(Price)   from Paso2_Noviembre2020 where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
+--DICIEMBRE 2020
+select sum(isnull(EnviosPorMes,0)) envios ,sum(Costo) monto from PLANTILLA_DETALLE where Mes=-12 union 
+select count( *),sum(Price)   from Paso2_Diciembre2020 where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
+
 --ENERO
 select sum(isnull(EnviosPorMes,0)) envios ,sum(Costo) monto from PLANTILLA_DETALLE where Mes=1 union 
 select count( *),sum(Price)   from Paso2_Enero where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
@@ -22,6 +29,22 @@ select count( *),sum(Price)   from Paso2_Junio where   From_ in( select t.Numero
 -----------------------------------------------------------------------------------------------------------------------
 -- MENSAJES POR GRUPOS
 -----------------------------------------------------------------------------------------------------------------------
+DROP TABLE IF EXISTS #NOVIEMBRE2020
+select PD.*,G.IdGrupo,G.Descripcion INTO #NOVIEMBRE2020 from PLANTILLA_DETALLE PD
+INNER JOIN PLANTILLA P ON P.IdPlantilla= PD.IdPlantilla
+INNER JOIN GRUPO G ON G.Idgrupo=P.IdGrupo
+where Mes=-11
+order by G.IdGrupo
+
+
+DROP TABLE IF EXISTS #DICIEMBRE2020
+select PD.*,G.IdGrupo,G.Descripcion INTO #DICIEMBRE2020 from PLANTILLA_DETALLE PD
+INNER JOIN PLANTILLA P ON P.IdPlantilla= PD.IdPlantilla
+INNER JOIN GRUPO G ON G.Idgrupo=P.IdGrupo
+where Mes=-12
+order by G.IdGrupo
+
+
 DROP TABLE IF EXISTS #ENERO
 select PD.*,G.IdGrupo,G.Descripcion INTO #ENERO from PLANTILLA_DETALLE PD
 INNER JOIN PLANTILLA P ON P.IdPlantilla= PD.IdPlantilla
@@ -64,6 +87,14 @@ INNER JOIN GRUPO G ON G.Idgrupo=P.IdGrupo
 where Mes=6
 order by G.IdGrupo
 
+
+
+
+SELECT SUM(EnviosPorMes) MENSAJES ,SUM(Costo) MONTO, Descripcion FROM #NOVIEMBRE2020  /*WHERE Descripcion='Confirmación de citas'*/ GROUP BY Descripcion    
+union select sum(M.EnviosPorMes),sum(M.Costo), 'Total'  from #NOVIEMBRE2020 M  order by Descripcion asc 
+SELECT SUM(EnviosPorMes) MENSAJES ,SUM(Costo) MONTO, Descripcion FROM #DICIEMBRE2020  /*WHERE Descripcion='Confirmación de citas'*/ GROUP BY Descripcion    
+union select sum(M.EnviosPorMes),sum(M.Costo), 'Total'  from #DICIEMBRE2020 M  order by Descripcion asc 
+
 SELECT SUM(EnviosPorMes) MENSAJES ,SUM(Costo) MONTO, Descripcion FROM #ENERO  /*WHERE Descripcion='Confirmación de citas'*/ GROUP BY Descripcion    
 union select sum(M.EnviosPorMes),sum(M.Costo), 'Total'  from #ENERO M  order by Descripcion asc 
 SELECT SUM(EnviosPorMes) MENSAJES ,SUM(Costo) MONTO, Descripcion FROM #FEBRERO  /*WHERE Descripcion='Confirmación de citas'*/ GROUP BY Descripcion  
@@ -75,7 +106,7 @@ union select sum(M.EnviosPorMes),sum(M.Costo), 'Total'  from #ABRIL M order by D
 SELECT SUM(EnviosPorMes) MENSAJES ,SUM(Costo) MONTO, Descripcion FROM #MAYO    /*WHERE Descripcion='Confirmación de citas'*/ GROUP BY Descripcion  
 union select sum(M.EnviosPorMes),sum(M.Costo), 'Total'  from #MAYO M order by Descripcion asc   
 SELECT SUM(EnviosPorMes) MENSAJES ,SUM(Costo) MONTO, Descripcion FROM #JUNIO    /*WHERE Descripcion='Confirmación de citas'*/ GROUP BY Descripcion  
-union select sum(M.EnviosPorMes),sum(M.Costo), 'Total'  from #MAYO M order by Descripcion asc   
+union select sum(M.EnviosPorMes),sum(M.Costo), 'Total'  from #JUNIO M order by Descripcion asc   
 
  -----------------------------------------------------------------------------------------------------------------------
 -- MENSAJES POR PLANTILLAS

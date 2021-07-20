@@ -5,13 +5,13 @@
 -- EN CASO DE QUE QUEDEN DATOS EN ESTA TABLA, SE DEBE PROCEDER CON EL SCRIP DE ABAJO, PARA CALSIFICAR LOS MENSAJES EN GRUPOS
 
 drop table if exists #tabla
-select  *  into #tabla from Paso2_Mayo where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
+select  *  into #tabla from Paso2_Diciembre2020 where   From_ in( select t.NumeroWhatsapp from WhatsappEmisor t)
 --SELECT Body FROM #tabla where Body like 'Hola!, tu cita para depilarte se aproxima%' ORDER BY Body ASC
 --Tu OTP es 00184413
 --------------------------------------------------------------------------------------------------------------------------------------------
 declare @i int=1
 declare @id int =1
-DECLARE @MES INT=5
+DECLARE @MES INT=-12
 
 	declare @filtro nvarchar(max)
 	
@@ -51,7 +51,7 @@ begin
 	set @i=@i+1
 end
 
-SELECT * FROM PLANTILLA_DETALLE WHERE Mes=5
+SELECT * FROM PLANTILLA_DETALLE WHERE Mes=-12
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
