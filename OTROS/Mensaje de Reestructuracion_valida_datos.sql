@@ -1,3 +1,5 @@
+use rm_europiel
+go
 DROP TABLE IF EXISTS #TABLA
 SELECT 
 P.id_paciente, s.id_bloque, b.abreviatura, P.nombre, P.ap_paterno + ' ' + P.ap_materno apellidos,
