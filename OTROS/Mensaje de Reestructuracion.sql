@@ -1,4 +1,6 @@
-
+USE rm_europiel
+GO
+drop table if exists #pacientes
 create table #pacientes
 (
 	id int identity(1,1),
@@ -9,7 +11,11 @@ create table #pacientes
 	apellidos varchar(512),
 	telefono1 varchar(32),
 	telefono2 varchar(32),
-	clave_acceso varchar(32)
+	clave_acceso varchar(32),
+	ULT_FECHA_PAGO datetime
+	,DIAS_RETRASO int
+	,saldo_total decimal(18,2)
+	,contrato varchar(50)
 )
 
 drop table if exists #tabla
@@ -19,7 +25,9 @@ drop table if exists #tabla
 	delete from #tabla
 
 DECLARE @NUM_MSG INTEGER = (select N1 from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO where Id=20)
-
+DECLARE @SALDO_TOTAL_FILTRO INT=(select N1 from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO where Id=21)
+DECLARE @FECHA_COMPRA_FILTRO DATE=(select Str1 from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO where Id=21)
+DECLARE @NUM_DIAS_RANGO_FILTRO INT=(select N2 from rm_europiel_requerimientos.dbo.CONFIGURACIONES_MENSAJES_TWILIO where Id=21)
 insert into #pacientes (id_paciente, id_bloque, bloque, nombre, apellidos, telefono1, telefono2, clave_acceso)
 select top (@NUM_MSG) pa.id_paciente, s.id_bloque, b.abreviatura, pa.nombre, pa.ap_paterno + ' ' + pa.ap_materno, -- se amplió el numero de mensajes de 50 a 100 a solicitud de IRAMM. cshica 16-06-2021
 		'+' + pai.codigo_pais + left(replace(replace(replace(replace(replace(replace(replace(pa.telefono_1,' ',''),'-',''),'+',''),'044',''),'045',''),'(',''),')',''),pai.longitud_celulares) as telefono_1, 
@@ -29,14 +37,14 @@ from paciente pa (nolock)
 join sucursal s (nolock) on s.id_sucursal = pa.id_sucursal
 join bloque b (nolock) on b.id_bloque = s.id_bloque
 join pais pai (nolock) on pai.id_pais = s.id_pais
-
+and (len(pa.telefono_2) >= 10 or len(pa.telefono_1) >= 10)
 and exists (select 1 
 			from paquete paq (nolock) 
 			where paq.id_paciente = pa.id_paciente
-			and paq.fecha_compra>='2021-01-01'-- se agregó este foltro a solicitud de IRAMM, Todos los paquetes comprados a partir del 01 de enero del 2020 hasta la actualidad. cshica 16-06-2021
-			and paq.saldo_total > 2500 --valor anterior 2000 Modificado: 20-07-2021
+			and paq.fecha_compra>=@FECHA_COMPRA_FILTRO-- se agregó este foltro a solicitud de IRAMM, Todos los paquetes comprados a partir del 01 de enero del 2020 hasta la actualidad. cshica 16-06-2021
+			and paq.saldo_total > @SALDO_TOTAL_FILTRO --valor anterior 2000 Modificado: 20-07-2021
 			--and paq.saldo_total = (paq.costo_total - paq.anticipo) -- se quitó por prueba Modificado: 20-07-2021
-			and paq.fecha_pago_1 < dateadd(day,-50,getdate())--se cambio de 61 a 50 dias : cshica 25-05-2021
+			and DATEDIFF(DAY, dbo.fn_obtener_ultimo_pago_paquete(paq.id_paquete), GETDATE())>@NUM_DIAS_RANGO_FILTRO--se cambio de 61 a 50 dias : cshica 25-05-2021
 			and paq.proviene_de_migracion = 0
 			and paq.no_disponible_por_migracion = 0
 			and paq.borrado_en_migracion = 0)
@@ -45,7 +53,7 @@ and not exists (select 1
 				 where nm.id_usuario = pa.id_paciente
 				 and nm.id_notifier = 13)
 and s.id_pais = 1
-and (len(pa.telefono_2) >= 10 or len(pa.telefono_1) >= 10)
+
 order by pa.fecha_alta desc
 
 
@@ -131,5 +139,5 @@ while @currId <= @maxId
   end
 
 
-select * from #tabla
-select * from #pacientes
+select * from #tabla order by id_usuario
+-- select * from #pacientes
