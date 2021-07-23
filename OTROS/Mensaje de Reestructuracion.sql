@@ -1,4 +1,9 @@
 USE rm_europiel
+--		rm_europiel
+--		rm_europiel_guadalajara
+--		rm_europiel_juarez
+--		rm_europiel_mty2
+--		rm_europiel_sinergia3
 GO
 drop table if exists #pacientes
 create table #pacientes
@@ -37,6 +42,10 @@ from paciente pa (nolock)
 join sucursal s (nolock) on s.id_sucursal = pa.id_sucursal
 join bloque b (nolock) on b.id_bloque = s.id_bloque
 join pais pai (nolock) on pai.id_pais = s.id_pais
+and s.id_pais = 1
+--and s.id_sucursal not in(3,10,11,12)-- solo para juarez
+--and s.id_sucursal not in(17,21,22)-- solo para mty2
+--and s.id_sucursal not in(20)-- solo para sinergia3
 and (len(pa.telefono_2) >= 10 or len(pa.telefono_1) >= 10)
 and exists (select 1 
 			from paquete paq (nolock) 
@@ -52,7 +61,7 @@ and not exists (select 1
 				 from rm_europiel_requerimientos.dbo.notifier_mensajes nm (nolock)
 				 where nm.id_usuario = pa.id_paciente
 				 and nm.id_notifier = 13)
-and s.id_pais = 1
+
 
 order by pa.fecha_alta desc
 

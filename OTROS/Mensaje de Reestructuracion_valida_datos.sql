@@ -9,8 +9,10 @@ P.id_paciente, s.id_bloque, b.abreviatura, P.nombre, P.ap_paterno + ' ' + P.ap_m
 		,dbo.fn_obtener_ultimo_pago_paquete(PQ.id_paquete) ULT_FECHA_PAGO
 		, DATEDIFF(DAY, dbo.fn_obtener_ultimo_pago_paquete(PQ.id_paquete), GETDATE()) DIAS_RETRASO
 		,PQ.saldo_total
-		,PQ.contrato 
 		,PQ.costo_total-PQ.anticipo total
+		,PQ.costo_total
+		,PQ.anticipo
+		,PQ.contrato 
 INTO #TABLA 
 FROM 
 PACIENTE P (NOLOCK)
@@ -22,6 +24,9 @@ WHERE
  
   PQ.fecha_compra>='2020-10-01'
   and (len(P.telefono_2) >= 10 or len(P.telefono_1) >= 10)
+  --and S.id_sucursal not in(3,10,11,12)--juarez
+  --and s.id_sucursal not in(17,21,22)-- solo para mty2
+  --and s.id_sucursal not in(20)-- solo para sinergia3
   and PQ.proviene_de_migracion = 0
   and PQ.no_disponible_por_migracion = 0
   and PQ.borrado_en_migracion = 0
@@ -36,8 +41,8 @@ WHERE
 
 SELECT id_paciente, COUNT(*) FROM #TABLA	group by id_paciente having COUNT(*)>1
 SELECT * FROM #TABLA
-where 
-apellidos='CARRILLO OBREGON'
+--where 
+--apellidos='CARRILLO OBREGON'
 
 --SELECT 
 --rm_europiel.dbo.fn_obtener_ultimo_pago_paquete(74967)
