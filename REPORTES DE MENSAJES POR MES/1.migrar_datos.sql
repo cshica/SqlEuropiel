@@ -1,7 +1,7 @@
 
-DROP TABLE IF EXISTS dbo.Paso2_Mayo;
+DROP TABLE IF EXISTS dbo.Paso2_Noviembre2020;
 GO
-CREATE TABLE dbo.Paso2_Mayo (
+CREATE TABLE dbo.Paso2_Noviembre2020 (
 	AccountSid char(34) NULL,
 	ApiVersion char(10) NULL,
 	Body nvarchar(max) NULL,
@@ -27,12 +27,11 @@ CREATE TABLE dbo.Paso2_Mayo (
 GO
 
 
-
-SELECT COUNT(*) FROM dbo.Paso2 (NOLOCK);
+SELECT COUNT(*) FROM dbo.Paso2_Diciembre2020 (NOLOCK);
 TRUNCATE TABLE dbo.Paso2;
-SELECT COUNT(*) FROM dbo.Paso2 (NOLOCK);
+SELECT COUNT(*) FROM dbo.Paso2_Diciembre2020 (NOLOCK);
 
-INSERT INTO dbo.Paso2_Mayo (
+INSERT INTO dbo.Paso2_Diciembre2020 (
     AccountSid, ApiVersion, Body, DateCreated, DateSent, DateUpdated, Direction, ErrorCode, ErrorMessage, From_, MessagingServiceSid, NumMedia, NumSegments, Price, PriceUnit, Sid_, Status_, SubresourceUris, To_, Uri
 )
 SELECT
@@ -43,5 +42,5 @@ SELECT
 FROM
     dbo.Paso1
 ;
-SELECT * FROM dbo.Paso2_Mayo	 (NOLOCK);
+SELECT * FROM dbo.Paso2_Diciembre2020	 (NOLOCK);
 

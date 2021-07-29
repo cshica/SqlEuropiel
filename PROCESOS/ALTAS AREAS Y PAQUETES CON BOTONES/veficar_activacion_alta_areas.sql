@@ -2,8 +2,14 @@
 /***********************************************************************ÁREA*******************************************************************************************/
 /**********************************************************************************************************************************************************************/
 go
---Probar con este ID @IdPackage=MTY1WEB000000054483
-declare	@from varchar(16)='+14157022948'
+--Probar con este ID @IdPackage=MTY1WEB000000056831
+--PARA PROBAR:
+-- EJECUTAR HASTA LA LINEA 25, DEBE ARROJAR 3 REPORTES, EL PRIMERO CON EL IDPAGAGE, EL 2 VACIO Y EL TERCERO CON 3 VALORES(QUIERE DECIR QUE NO SE HA DADO DE ALTA Y SE DEBE MANDAR EL MENSAJE AL WHATSAPP PARA QUE INICE EL PROCESO)
+-- SI NO ESTA EN ESTE ORDEN EL REPORTE, ENTONCES EJECUTAR LAS LINEAS 32  Y 33 PARA QUE SE ELIMINEN LAS ALTAS Y SE PEUDA COMENZAR LA PRUEBA, Y DEBE VER LOS 3 REPORTES COMO SE INDICA EN LA PARTE DE ARRIBA
+-- EN EL POSTMAN SE UTILIZA LOS SERVICIOS EN EL SIGUIENTE ORDEN:
+    -- http://localhost:4323/api/Callcenter/CheckChatConversationType
+    -- http://localhost:4323/api/Callcenter/AltaAreaActivacion
+declare	@from varchar(16)='+14159416424'
 declare	@to varchar(16)='+5218261065393'
 set @to=replace(@to,'+521','+52')
 
@@ -16,12 +22,15 @@ select top 1 @IdPackage = IdPackage
 	order by id desc
 
 select IdPackage=isNull(@IdPackage,'')
-select top 100* from rm_europiel_requerimientos.dbo.alta_activacion where id_referencia=@IdPackage  order by fecha_registro desc
-select top 1 * from rm_europiel_requerimientos.dbo.alta_activacion where id=3533
-select * from rm_europiel.dbo.whatsapp_interfaz_altas where telefono='+528261065393'
+select top 100* from rm_europiel_requerimientos.dbo.alta_activacion where id_referencia='MTY1WEB000000056831'  order by fecha_registro asc
+-- select top 1  * from rm_europiel_requerimientos.dbo.alta_activacion where id=11530
+select * from rm_europiel.dbo.whatsapp_interfaz_altas where telefono like '%+528261065393%'
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJECUTAMOS PARA DESACTIVAR LA CONFIRMACION O NEGACION DEL ÁREA
-update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_proceso=null,estatus=null,respuesta_cliente=null where id=3533
+delete from alta_activacion where id_referencia='MTY1WEB000000056831' 
+update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_proceso=null,estatus=null,respuesta_cliente=null where id=5169
 -- update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_interfaz=cast(GETDATE() as date)
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
