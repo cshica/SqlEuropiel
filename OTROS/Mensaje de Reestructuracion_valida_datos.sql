@@ -1,4 +1,4 @@
-use rm_europiel
+use rm_europiel_mty2
 go
 DROP TABLE IF EXISTS #TABLA
 SELECT 
@@ -24,8 +24,8 @@ WHERE
  
   PQ.fecha_compra>='2020-10-01'
   and (len(P.telefono_2) >= 10 or len(P.telefono_1) >= 10)
-  --and S.id_sucursal not in(3,10,11,12)--juarez
-  --and s.id_sucursal not in(17,21,22)-- solo para mty2
+--   and S.id_sucursal not in(3,10,11,12)--juarez
+  and s.id_sucursal not in(17,21,22)-- solo para mty2
   --and s.id_sucursal not in(20)-- solo para sinergia3
   and PQ.proviene_de_migracion = 0
   and PQ.no_disponible_por_migracion = 0
