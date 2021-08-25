@@ -10,14 +10,14 @@ LLAMADAS_TWILIO.IdBloque=c.id_bloque
 --,LLAMADAS_TWILIO.CodPais=c.cod 
 ,LLAMADAS_TWILIO.UrlSistema=c.url_sistema
 ,LLAMADAS_TWILIO.BloqueHijo=c.bloque2 
-from  clientes_global c where   c.claveAcceso=LLAMADAS_TWILIO.ClienteId and LLAMADAS_TWILIO.IdLlamada IN('CA63599b3ee6c899d1183ef977a0127444')
+from  clientes_global c where   c.claveAcceso=LLAMADAS_TWILIO.ClienteId and LLAMADAS_TWILIO.IdLlamada IN('CA6709e5768c19aba3d6914c531fd65b6f')
 
 --para actualizar el pais
 update LLAMADAS_TWILIO
 set 
 LLAMADAS_TWILIO.Pais=p.nombre
 ,LLAMADAS_TWILIO.CodPais=p.country_code
-FROM rm_europiel.dbo.PAIS  p where LLAMADAS_TWILIO.IdPais=p.id_pais and LLAMADAS_TWILIO.IdLlamada IN('CA63599b3ee6c899d1183ef977a0127444')
+FROM rm_europiel.dbo.PAIS  p where LLAMADAS_TWILIO.IdPais=p.id_pais and LLAMADAS_TWILIO.IdLlamada IN('CA6709e5768c19aba3d6914c531fd65b6f')
 
 
 --------------------------------------------
