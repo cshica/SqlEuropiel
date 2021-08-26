@@ -203,3 +203,34 @@
 	group by id_tipo_reporte
 END
 	-----------------------------------------------------------------------------------------------------------------------------
+
+DECLARE @FILTRO NVARCHAR(20)='Dia'
+DECLARE @FECHA DATETIME =GETDATE()
+DECLARE @SEMANA_ACTUAL VARCHAR(5)=(SELECT concat('Sem',ID) FROM dbo.fn_partir_mes_en_semanas_twilio(MONTH(@FECHA),default) WHERE @FECHA BETWEEN FECHA_PRIMER_DIA AND FECHA_ULTIMO_DIA)
+PRINT @SEMANA_ACTUAL
+select  
+		b.id_paciente
+		,b.observaciones
+		,b.bloque
+		,b.id_tipo_reporte
+		,b.fecha_registro
+		,t.Sucursal
+		,t.NombreCliente
+		,b.id_agente
+		,null
+		from bitacora_callcenter b
+		inner join LLAMADAS_TWILIO t on t.ClienteId=b.id_cliente_callcenter and b.bloque=t.Bloque
+		where 
+		cast(b.fecha_registro as date)= '20210825' 
+		and b.id_tipo_reporte=28
+		--AND B.id_sucursal=t.IdSucursal
+		group by 
+		b.id_paciente
+		,b.observaciones
+		,b.bloque
+		,b.id_tipo_reporte
+		,b.fecha_registro
+		,t.Sucursal
+		,t.NombreCliente
+		,b.id_agente
+		order by t.Sucursal asc	
