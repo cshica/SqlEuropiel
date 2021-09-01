@@ -30,7 +30,7 @@ select * from rm_europiel.dbo.whatsapp_interfaz_altas where telefono like '%+528
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJECUTAMOS PARA DESACTIVAR LA CONFIRMACION O NEGACION DEL ÁREA
 delete from alta_activacion where id_referencia='MTY1WEB000000056831' 
-update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_proceso=null,estatus=null,respuesta_cliente=null where id=5169
+update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_proceso=null,estatus=null,respuesta_cliente=null,fecha_interfaz=cast(GETDATE() as date) where id=5169
 -- update rm_europiel.dbo.whatsapp_interfaz_altas set fecha_interfaz=cast(GETDATE() as date)
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -122,3 +122,4 @@ BEGIN
     else if @bloque = 'DRP'
         update rm_dermapro.dbo.whatsapp_interfaz_altas set fecha_proceso = getdate(),   respuesta_cliente=@respuesta where id=@id	
 END;
+

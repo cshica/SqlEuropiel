@@ -18,7 +18,7 @@ select * from rm_europiel_requerimientos.dbo.paquete_activacion where id_referen
 select * from rm_europiel.dbo.whatsapp_interfaz where telefono='+528261065393' and id_paquete = right(@IdPackage,5)
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJECUTAMOS PARA DESACTIVAR LA CONFIRMACION O NEGACION DEL PAQUETE
-update rm_europiel.dbo.whatsapp_interfaz set fecha_proceso=null,estatus=null,respuesta_cliente=null where id=14982
+update rm_europiel.dbo.whatsapp_interfaz set fecha_proceso=null,estatus=null,respuesta_cliente=null, fecha_interfaz=getdate() where id=14982
 
 
 
