@@ -1,5 +1,5 @@
-DECLARE @FECHA_INI DATE='20210831'--CAST(GETDATE()-3 AS DATE)
-DECLARE @FECHA_FIN DATE='20210831'--CAST(GETDATE() AS DATE)
+DECLARE @FECHA_INI DATE='20210901'--CAST(GETDATE()-3 AS DATE)
+DECLARE @FECHA_FIN DATE=CAST(GETDATE() AS DATE)
 
 drop table if exists #tabla
 select  
@@ -13,6 +13,7 @@ select
 		,b.id_tipo_reporte
 		,(select tp.descripcion from bitacora_callcenter_tipo_reporte tp where tp.id_tipo_reporte=b.id_tipo_reporte) tipo_reporte
 		,b.fecha_registro
+		,t.HoraInicioLlamada
 		,t.IdSucursal
 		,t.Sucursal
 		,t.NombreCliente
@@ -26,9 +27,11 @@ select
 		from LLAMADAS_TWILIO (nolock)  t
 		inner  join bitacora_callcenter (nolock)  b on t.ClienteId=b.id_cliente_callcenter --and b.bloque=t.Bloque 
 		where 
-		cast(b.fecha_registro as date) BETWEEN @FECHA_INI AND @FECHA_FIN
-		AND 
+		
+		 
 		REPLACE(REPLACE(B.id_agente,'client:',''),'_40europiel_2Ecom_2Emx','@europiel.com.mx')=T.Agente
+		and (cast(b.fecha_registro as date) BETWEEN @FECHA_INI AND @FECHA_FIN)
+		and (cast( t.HoraInicioLlamada as date) BETWEEN @FECHA_INI AND @FECHA_FIN)
 		-- b.id_sucursal=t.IdSucursal
 		--month(b.fecha_registro)=month(GETDATE()) 
 		--and year(b.fecha_registro)=year(getdate()) 
@@ -46,6 +49,7 @@ select
 		,t.IdBloque
 		,b.id_tipo_reporte
 		,b.fecha_registro
+		,t.HoraInicioLlamada
 		,t.IdSucursal
 		,t.Sucursal
 		,t.NombreCliente
@@ -58,7 +62,7 @@ select
 
 
 
-		select * from #tabla where NombreCliente like'%JESUS DAVID CAMPERO MONZALVO%' 
+		select * from #tabla-- where NombreCliente like'%MARIELA TREJO LOMELI%' 
 		order by Sucursal ASC
 
 		select * from bitacora_callcenter WHERE folio IN ('TW113929','TW113922')
