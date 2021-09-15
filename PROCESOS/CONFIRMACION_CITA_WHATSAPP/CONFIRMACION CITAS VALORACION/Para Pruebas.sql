@@ -11,6 +11,7 @@ fecha_confirmacion=NULL
 ,tipo_confirmacion=NULL
 ,fecha_inicio=getdate()+1
 ,fecha_fin= getdate()+4
+,estatus='N'
 where id_cita=514
 
 
