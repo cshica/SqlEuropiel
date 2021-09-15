@@ -9,7 +9,8 @@ set
 fecha_confirmacion=NULL
 ,id_usuario_confirmacion=NULL
 ,tipo_confirmacion=NULL
-,fecha_inicio=getdate()
-,fecha_fin= getdate()+1
+,fecha_inicio=getdate()+1
+,fecha_fin= getdate()+4
 where id_cita=514
+
 
